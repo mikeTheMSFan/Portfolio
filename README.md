@@ -49,7 +49,7 @@ This shows the code that I used on my website.
     "Port": 587
   },
   "SftpSettings": {
-    "BlogUploadDirectory": "Your blog upload directory",
+    "BlogUploadDirectory": "Your blog picture directory",
     "Host": "Your content host",
     "PassPhrase": "Your passphrase",
     "Port": 22,
