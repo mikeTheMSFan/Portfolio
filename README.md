@@ -139,7 +139,7 @@ Microsoft has done a lot of the legwork for setting up Google account authentica
 
 3. Under `GoogleAccount`, put your client secret in the `client_secret` portion of `appsettings.json`.
 
-For information on how to get these values,please review the [`Create the Google OAuth 2.0 Client ID and secret`](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/social/google-logins?view=aspnetcore-6.0) and [`Store the Google client ID and secret`](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/social/google-logins?view=aspnetcore-6.0#store-the-google-client-id-and-secret)
+For information on how to get these values, please review the [`Create the Google OAuth 2.0 Client ID and secret`](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/social/google-logins?view=aspnetcore-6.0) and [`Store the Google client ID and secret`](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/social/google-logins?view=aspnetcore-6.0#store-the-google-client-id-and-secret)
 
 ### **Set up the email sender**
 
