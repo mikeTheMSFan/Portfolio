@@ -53,7 +53,7 @@ This shows the code that I used on my website.
     "Host": "Your content host",
     "PassPhrase": "Your passphrase",
     "Port": 22,
-    "PostUploadDirectory": "your post picture directory",
+    "PostUploadDirectory": "Your post picture directory",
     "ProfileUploadDirectory": "Your profile picture directory",
     "ProjectUploadDirectory": "Your project picture directory",
     "StorageUrl": "https://mycontentserver.com/",
