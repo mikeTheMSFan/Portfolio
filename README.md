@@ -116,7 +116,7 @@ When the user logs in using their Microsoft account leveraging Microsoft’s Ide
 
     3. Under `AzureAd`, put the key vault certificate name in `KeyVaultCertificateName` portions of `appsettings.json`.
 
-    If you would rather use a client secrect (which is usually for development) you can follow this template:
+    If you would rather use a client secret (which is usually for development) you can follow this template:
 
     ```json
     {
