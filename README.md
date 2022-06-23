@@ -10,7 +10,7 @@ This shows the code that I used on my website.
 
 3. You will need to use Visual Studio to build the project, to get familiar with building projects in Visual Studio please see [this article](https://docs.microsoft.com/en-us/visualstudio/ide/walkthrough-building-an-application?view=vs-2022).
 
-4. Before you can run the software, create your own `appsettins.json` file; if you need guidance creating this file, please see the template below.
+4. Before you can run the software, create your own `appsettings.json` file; if you need guidance creating this file, please see the template below.
 
 ```json
 {
