@@ -121,10 +121,10 @@ When the user logs in using their Microsoft account leveraging Microsoft’s Ide
     ```json
     {
       "AzureAd": {
-        "Instance": "https://login.microsoftonline.com/",
-        "TenantId": "[Enter the tenantId here]",
-        "ClientId": "[Enter the Client Id]",
-        "CallbackPath": "/signin-oidc"
+          "Instance": "https://login.microsoftonline.com/",
+          "ClientId": "[Client_id-of-web-app]",
+          "TenantId": "common",
+          "ClientSecret": "[Copy the client secret added to the app]",
       }
     }
     ```
