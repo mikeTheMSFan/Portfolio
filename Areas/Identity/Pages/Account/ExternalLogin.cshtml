@@ -1,0 +1,55 @@
+﻿@page
+@using Microsoft.EntityFrameworkCore
+@model ExternalLoginModel
+@{
+    ViewData["Title"] = "Mike Robinson's Site - Register";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    //Caches profile picture for use on BE.
+    TempData["Base64ProfilePicture"] = Model.Claims.Base64ProfilePicture;
+    if (TempData.ContainsKey("ClaimsModel"))
+    {
+        //Gets claims model and deserializes it to "ClaimsInputModel" for use on FE.
+        var claimsModelJson = TempData["ClaimsModel"] as string;
+        var claimsModelCache = System.Text.Json.JsonSerializer.Deserialize<ExternalLoginModel.ClaimsInputModel>(claimsModelJson!);
+        Model.Claims = claimsModelCache;
+    }
+}
+
+@Html.Hidden("profilePicture", Model.Claims!.Base64ProfilePicture)
+<link rel="stylesheet" href="~/css/FormStyle.css"/>
+<div class="container">
+    <h1>@ViewData["Title"]</h1>
+    <h2 id="external-login-title">Associate your @Model.ProviderDisplayName account.</h2>
+    <hr/>
+
+    <p id="external-login-description" class="text-info">
+        You've successfully authenticated with <strong>@Model.ProviderDisplayName</strong>.
+        Please enter an email address for this site below and click the Register button to finish
+        logging in.
+    </p>
+
+    <div class="row">
+        <div class="col-md-4 form-section">
+            <form asp-page-handler="Confirmation" class="form-form" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-floating">
+                    <input asp-for="Input.Email" class="form-control" autocomplete="email"/>
+                    <label asp-for="Input.Email" class="form-label"></label>
+                    <input asp-for="Claims.FirstName" class="form-control" autocomplete="FirstName" hidden/>
+                    <input asp-for="Claims.LastName" class="form-control" autocomplete="LastName" hidden/>
+                    <input asp-for="Claims.ProfilePicture" class="form-control" hidden/>
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+                <button type="submit" class="w-100 btn btn-lg default-btn">Register</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+    <script src="~/js/externalLogin.js"></script>
+}

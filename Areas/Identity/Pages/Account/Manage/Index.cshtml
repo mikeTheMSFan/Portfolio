@@ -1,0 +1,100 @@
+﻿@page
+@using Portfolio.Services.Interfaces
+@model IndexModel
+@inject IRemoteImageService RemoteImageService
+@inject UserManager<BlogUser> UserManager
+@{
+    ViewData["Title"] = "Mike Robinson's Site - Profile";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+    Layout = "_Layout";
+}
+
+@{
+    var user = await UserManager.FindByIdAsync(UserManager.GetUserId(User));
+    var avatar = string.Empty;
+    var label = string.Empty;
+    if (user.FileName != null)
+    {
+        avatar = user.FileName;
+        label = "Current Avatar";
+    }
+}
+<link rel="stylesheet" href="~/css/FormStyle.css"/>
+<link rel="stylesheet" href="~/lib/cropperjs/cropper.min.css"/>
+<link rel="stylesheet" href="~/css/avatarCropper.css"/>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+<partial name="_StatusMessage" for="StatusMessage"/>
+<h3>@ViewData["Title"]</h3>
+<div class="row">
+    <div class="col-md-8 form-section                                                 ">
+        <form id="profile-form" class="form-form" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-floating">
+                <input asp-for="Username" class="form-control" disabled/>
+                <label asp-for="Username" class="form-label"></label>
+            </div>
+            <div class="form-floating">
+                <input asp-for="Input.PhoneNumber" class="form-control"/>
+                <label asp-for="Input.PhoneNumber" class="form-label"></label>
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            </div>
+            @if (User.IsInRole("Administrator"))
+            {
+                <div class="form-floating">
+                    <input asp-for="Input.FacebookUrl" class="form-control"/>
+                    <label asp-for="Input.FacebookUrl" class="form-label"></label>
+                    <span asp-validation-for="Input.FacebookUrl" class="text-danger"></span>
+                </div>
+                <div class="form-floating">
+                    <input asp-for="Input.InstagramUrl" class="form-control"/>
+                    <label asp-for="Input.InstagramUrl" class="form-label"></label>
+                    <span asp-validation-for="Input.InstagramUrl" class="text-danger"></span>
+                </div>
+                <div class="form-floating">
+                    <input asp-for="Input.TwitterUrl" class="form-control"/>
+                    <label asp-for="Input.TwitterUrl" class="form-label"></label>
+                    <span asp-validation-for="Input.TwitterUrl" class="text-danger"></span>
+                </div>
+                <div class="form-floating">
+                    <input asp-for="Input.YouTubeUrl" class="form-control"/>
+                    <label asp-for="Input.YouTubeUrl" class="form-label"></label>
+                    <span asp-validation-for="Input.YouTubeUrl" class="text-danger"></span>
+                </div>
+                <div class="form-floating">
+                    <input asp-for="Input.PinterestUrl" class="form-control"/>
+                    <label asp-for="Input.InstagramUrl" class="form-label"></label>
+                    <span asp-validation-for="Input.PinterestUrl" class="text-danger"></span>
+                </div>
+                <div class="form-floating">
+                    <textarea asp-for="Input.AuthorDescription" class="form-control"></textarea>
+                    <label asp-for="Input.AuthorDescription" class="form-label"></label>
+                    <span asp-validation-for="Input.AuthorDescription" class="text-danger"></span>
+                </div>
+            }
+
+            <div class="form-floating">
+                <span class="text-danger">Please upload only jpeg, gif, svg, and png files.</span>
+                <input asp-for="Input.Image" class="mt-3 form-control" onchange="cropImgFunc(event)">
+                <label class="control-label">Choose profile picture</label>
+                <img class="d-block ms-0 my-2 currentAvatar" src="@avatar"/>
+                <label class="control-label">@label</label>
+
+                <div class="cropper my-3">
+                    <div class="result" id="inputImg"></div>
+                    <img class="my-2 preImg" id="preImg">
+                    <label class="d-block control-label">Avatar Preview</label>
+                    <div id="slider" class="my-2 ep-slider-bar w-100"></div>
+                </div>
+
+            </div>
+            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg default-btn">Save</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+    <script src="~/lib/cropperjs/cropper.min.js"></script>
+    <script src="~/js/avatarCropper.js"></script>
+}

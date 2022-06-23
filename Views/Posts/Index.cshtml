@@ -1,0 +1,72 @@
+@using X.PagedList.Mvc.Core
+@using X.PagedList.Web.Common
+@using Portfolio.Services.Interfaces
+@model X.PagedList.IPagedList<Post>
+@inject IRemoteImageService RemoteImageService
+
+@{
+    ViewData["Title"] = "Mike Robinson's Site - Current Posts";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!-- Begin Post Index -->
+<link rel="stylesheet" href="~/css/pagination.css"/>
+<link rel="stylesheet" href="css/custom.css"/>
+<div class="container">
+    <div>
+        <h1>Current Posts</h1>
+        @if (User.IsInRole("Administrator"))
+        {
+            <p>
+                <a asp-action="Create">Create Post</a>
+            </p>
+        }
+
+    </div>
+    <hr/>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3">
+        @foreach (var item in Model)
+        {
+            <div class="col">
+                <div class="padding-15 wow fadeInUp" data-wow-delay="200ms">
+                    <div class="feature-item">
+                        <div class="feature-icon color-red">
+                            <img class="img-fluid" src="@item.FileName" alt="post picture"/>
+                        </div>
+                        <h3>@item.Title</h3>
+                        <p class="m-0">
+                            Author:
+                            <b>
+                                <span class="authorName">@item.BlogUser!.FullName</span>
+                            </b>
+                        </p>
+                        <p>@item.Abstract</p>
+                        <a asp-action="Details" asp-route-slug="@item.Slug" class="read-more">Read more<i class="las la-long-arrow-alt-right"></i></a>
+                        @if (User.IsInRole("Administrator"))
+                        {
+                            <hr/>
+                            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                            <span>|</span>
+                            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <!--Add paging controls here-->
+    <div class="row">
+        <div class="col h5 text-center mt-5">
+            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            @Html.PagedListPager(Model, page => Url.Action("Index", new { page }),
+                new PagedListRenderOptions
+                {
+                    UlElementClasses = new[] { "pagination-wrap", "text-center" },
+                    ActiveLiElementClass = "active"
+                })
+        </div>
+    </div>
+</div>

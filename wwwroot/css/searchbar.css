@@ -1,0 +1,40 @@
+.search {
+    position: relative;
+    box-shadow: 0 0 40px rgba(51, 51, 51, 0.1);
+}
+
+.search input {
+    height: 60px;
+    text-indent: 35px;
+    border: 1px solid #000000;
+}
+
+.search input:focus {
+    outline: none !important;
+}
+
+.search .la-search {
+    position: absolute;
+    top: 23px;
+    left: 16px;
+}
+
+.search button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    height: 50px;
+    width: 110px;
+    background: #f43e71;
+    color: #fff;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 45px;
+    text-transform: uppercase;
+}
+
+.search button:focus {
+    outline: none !important;
+    background: #f43e71;
+}

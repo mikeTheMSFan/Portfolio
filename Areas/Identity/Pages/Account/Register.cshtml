@@ -1,0 +1,108 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Mike Robinson's Site - Register";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link rel="stylesheet" href="~/css/FormStyle.css"/>
+<div class="container my-5">
+    <link rel="stylesheet" href="~/lib/cropperjs/cropper.min.css"/>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="~/css/avatarCropper.css"/>
+    <div class="row">
+        <div class="col-md-6 form-section">
+            <form id="registerForm" class="form-form" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
+                <h2 class="mb-0">@ViewData["Title"]</h2>
+                <hr class="mt-0"/>
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-floating">
+                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true"/>
+                    <label asp-for="Input.Email"></label>
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating">
+                    <input asp-for="Input.FirstName" class="form-control" aria-required="true"/>
+                    <label asp-for="Input.FirstName"></label>
+                    <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating">
+                    <input asp-for="Input.LastName" class="form-control" aria-required="true"/>
+                    <label asp-for="Input.LastName"></label>
+                    <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                </div>
+                <div class="form-floating">
+                    <span class="text-danger">Please upload only jpeg, gif, svg, and png files.</span>
+                    <input asp-for="Input.Image" class="form-control" onchange="cropImgFunc(event)">
+                    <span asp-validation-for="Input.Image" class="d-block text-danger"></span>
+                    <label asp-for="Input.Image" class="control-label"></label>
+
+                    <div class="cropper my-3">
+                        <div class="result" id="inputImg"></div>
+                        <img class="my-2 preImg" id="preImg">
+                        <label class="d-block control-label">Avatar Preview</label>
+                        <div id="slider" class="my-2 ep-slider-bar w-100 h-auto"></div>
+                    </div>
+                </div>
+
+                <div class="form-floating">
+                    <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true"/>
+                    <label asp-for="Input.Password"></label>
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+                <div class="form-floating">
+                    <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true"/>
+                    <label asp-for="Input.ConfirmPassword"></label>
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                </div>
+                <button id="registerSubmit" type="submit" class="w-100 btn btn-lg default-btn">Register</button>
+            </form>
+        </div>
+        <div class="col-md-6 col-md-offset-2">
+            <section>
+                <h3>Use another service to register.</h3>
+                <hr/>
+                @{
+                    if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                    {
+                        <div>
+                            <p>
+                                There are no external authentication services configured. See this
+                                <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
+                                    article
+                                    about setting up this ASP.NET application to support logging in via external services
+                                </a>.
+                            </p>
+                        </div>
+                    }
+                    else
+                    {
+                        <form id="external-account" class="form-form" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                            <div>
+                                <p>
+                                    @foreach (var provider in Model.ExternalLogins!)
+                                    {
+                                        var providerDisplayName = provider.DisplayName;
+                                        if (provider.DisplayName == "OpenIdConnect")
+                                        {
+                                            providerDisplayName = "Microsoft";
+                                        }
+                                        <button type="submit" class="btn default-btn" name="provider" value="@provider.Name" title="Log in using your @providerDisplayName account">@providerDisplayName</button>
+                                    }
+                                </p>
+                            </div>
+                        </form>
+                    }
+                }
+            </section>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+    <script src="~/lib/cropperjs/cropper.min.js"></script>
+    <script src="~/js/avatarCropper.js"></script>
+}

@@ -1,0 +1,258 @@
+﻿@{
+    ViewData["Title"] = "Mike Robinson's Site - Home";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+    var message = "";
+    @if (TempData.ContainsKey("StatusMessage"))
+    {
+        message = TempData["StatusMessage"]!.ToString();
+    }
+
+    var projects = new List<Project>();
+    @if (ViewData.ContainsKey("Projects"))
+    {
+        projects = (List<Project>)ViewData["Projects"]!;
+    }
+}
+<partial name="_StatusMessage" for="@message"/>
+@Html.Hidden("postUrl", Url.Action("Details", "Posts", new { slug = "-1" }))
+<section class="hero-info">
+    <div class="container">
+        <div class="row row-cols-1 row-cols-lg-2">
+            <div class="d-lg-flex align-items-center order-1 order-lg-0">
+                <div class="mt-5 text-center text-lg-left">
+                    <h4 class="mb-0 header-font-size">Michael M. Robinson</h4>
+                    <h4 class="header-font-size">Technology Enthusiast</h4>
+                    <p>Developing cross-platform experiences, <br>using Microsoft technologies.</p>
+                    <div class="btn-group d-flex justify-content-center d-lg-inline-block ">
+                        <a href="about-us.html" class="default-btn noRightMargin">Download Resume</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 order-lg-1">
+                <img src="~/imgs/happyProgramerLarge.svg" alt="happy programmer"/>
+            </div>
+        </div>
+    </div>
+</section><!-- hero-section -->
+
+<section class="sponsor-section py-3">
+    <div class="d-flex justify-content-center">
+        <div class="section-heading mb-10 wow fadeInUp" data-wow-delay="200ms">
+            <h4 class="py-2">Featured Technologies</h4>
+        </div>
+    </div>
+    <div class="container">
+        <div class="slider sponsor-carousel nav-style">
+            <div class="sponsor-item">
+                <div class="sponsor-img">
+                    <img src="/imgs/Logos/Azure.png" alt="Azure">
+                </div>
+                <div class="sponsor-hover">
+                    <img src="/imgs/Logos/Azure.png" alt="Azure">
+                </div>
+            </div>
+            <div class="sponsor-item">
+                <div class="sponsor-img">
+                    <img src="/imgs/Logos/bootstrap.png" alt="bootstrap">
+                </div>
+                <div class="sponsor-hover">
+                    <img src="/imgs/Logos/bootstrap.png" alt="bootstrap">
+                </div>
+            </div>
+            <div class="sponsor-item">
+                <div class="sponsor-img">
+                    <img src="/imgs/Logos/csharp.png" alt="csharp">
+                </div>
+                <div class="sponsor-hover">
+                    <img src="/imgs/Logos/csharp.png" alt="csharp">
+                </div>
+            </div>
+            <div class="sponsor-item">
+                <div class="sponsor-img">
+                    <img src="/imgs/Logos/css3.png" alt="css3">
+                </div>
+                <div class="sponsor-hover">
+                    <img src="/imgs/Logos/css3.png" alt="css3">
+                </div>
+            </div>
+            <div class="sponsor-item">
+                <div class="sponsor-img">
+                    <img src="/imgs/Logos/dotnetcore.png" alt="dot net core">
+                </div>
+                <div class="sponsor-hover">
+                    <img src="/imgs/Logos/dotnetcore.png" alt="dot net core">
+                </div>
+            </div>
+            <div class="sponsor-item">
+                <div class="sponsor-img">
+                    <img src="/imgs/Logos/html5.png" alt="html 5">
+                </div>
+                <div class="sponsor-hover">
+                    <img src="/imgs/Logos/html5.png" alt="html 5">
+                </div>
+            </div>
+            <div class="sponsor-item">
+                <div class="sponsor-img">
+                    <img src="/imgs/Logos/javascript.png" alt="JavaScript">
+                </div>
+                <div class="sponsor-hover">
+                    <img src="/imgs/Logos/javascript.png" alt="JavaScript">
+                </div>
+            </div>
+            <div class="sponsor-item">
+                <div class="sponsor-img">
+                    <img src="/imgs/Logos/postgres.png" alt="postgres sql">
+                </div>
+                <div class="sponsor-hover">
+                    <img src="/imgs/Logos/postgres.png" alt="postgres sql">
+                </div>
+            </div>
+            <div class="sponsor-item">
+                <div class="sponsor-img">
+                    <img src="/imgs/Logos/visualstudio.png" alt="Visual studio">
+                </div>
+                <div class="sponsor-hover">
+                    <img src="/imgs/Logos/visualstudio.png" alt="Visual studio">
+                </div>
+            </div>
+            <div class="sponsor-item">
+                <div class="sponsor-img">
+                    <img src="/imgs/Logos/efcore.png" alt="EF Core">
+                </div>
+                <div class="sponsor-hover">
+                    <img src="/imgs/Logos/efcore.png" alt="EF Core">
+                </div>
+            </div>
+        </div>
+    </div>
+</section><!--/. skills-section -->
+
+<section id="about" class="about-section bg-grey bd-bottom padding">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 sm-padding wow fadeInLeft" data-wow-delay="200ms">
+                <img src="/imgs/michael_robinson.svg" alt="img">
+            </div>
+            <div class="col-lg-6 sm-padding wow fadeInRight" data-wow-delay="200ms">
+                <div class="section-heading">
+                    <h2>A little more <br> about me.</h2>
+                    <p>I am a passionate, self-taught, web developer that has been studying the craft for about two years. Since high school, where I found visual basic, I have appreciated how code can make computers do wonderful things. In college, I saw what was possible with Web 2.0 and naturally gravitated toward it. Programming is my passion and I will do what it takes to make it my future.</p>
+                    <p>When I am not coding, some of my activities include enjoying my family and friends, going out to movies, building PCs, learning about new technologies, going for walks, and listening to music.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section><!-- about-section -->
+
+<section id="projects" class="project-section padding">
+    <div class="bg-dark"></div>
+    <div class="container">
+        <div class="section-heading-wrap row mb-40">
+            <div class="col-md-6">
+                <div class="section-heading">
+                    <h4>Recent Projects</h4>
+                    <h2>Web development projects</h2>
+                    <p>Below you can find a sample of the <br class="d-none d-lg-block"> the most recent projects that I have taken on.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <p>Technologies used for these projects include <br> .NET, JavaScript, Bootstrap, and more.</p>
+                <a asp-controller="Projects" asp-action="Index" class="default-btn">View All Projects</a>
+            </div>
+        </div>
+        <div id="projectContainer" class="slider project-carousel nav-style carousel-dots ">
+            @if (projects.Any())
+            {
+                foreach (var project in projects)
+                {
+                    <div class="slick-item">
+                        <div class="project-item">
+                            <div class="project-thumb">
+                                <img src="@Html.Raw(project.FileName)" alt="thumb">
+                                <div class="dir-overlay">
+                                    <a class="venobox" data-gall="myGallery" href="@Html.Raw(project.FileName)">
+                                        <i class="las la-plus"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="project-content">
+                                <h4>
+                                    <a class="branding" href="@Html.Raw(project.ProjectUrl)">@project.Type</a>
+                                </h4>
+                                <h3>
+                                    <a class="description" href="@Html.Raw(project.ProjectUrl)">@project.Description</a>
+                                </h3>
+                                <a href="@Html.Raw(project.ProjectUrl)" class="read-more">Visit<i class="las la-long-arrow-alt-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <h3 class="text-center">The projects section is under construction. Please check back later.</h3>
+            }
+        </div>
+    </div>
+</section><!--/. projects-section -->
+
+<section class="blog-section bg-grey bd-bottom padding">
+    <div class="container">
+        <div class="section-heading mb-40 text-center wow fadeInUp" data-wow-delay="200ms">
+            <h4>Blog Posts</h4>
+            <h2>Get The Latest Updates</h2>
+            <p>Here you will find my latest posts <br> regarding web development and other areas of technology.</p>
+        </div>
+        <div id="loader" class="row text-center"></div>
+        <div id="blogContainer" class="row">
+            <!--Blog entries start here -->
+        </div>
+    </div>
+</section><!--/. blog-section -->
+
+<template>
+    <div class="col-lg-4 col-sm-6 padding-15">
+        <div class="blog-item">
+            <div class="blog-thumb">
+                <img class="postImage" src="https://via.placeholder.com/1920x1280.png?text=Placeholder+Image" alt="post">
+                <span class="category">
+                    <!--Categories go here-->
+                </span>
+            </div>
+            <div class="blog-content">
+                <div class="post-meta">
+                    <div class="meta-list">
+                        <h4>
+                            <a class="postCreated" href="#">Jan 01 2021</a>
+                        </h4>
+                    </div>
+                    <div meta-list>
+                        <h4 class="postAuthor">Jonathan Smith</h4>
+                    </div>
+                </div>
+                <h3>
+                    <a class="postTitle postLink" href="">How to go about initiating an start-up in few days.</a>
+                </h3>
+                <p class="postAbstract">Financial experts support or help you to to find out which way you can raise your funds more.</p>
+                <a class="postLink read-more" href="">Read More<i class="las la-long-arrow-alt-right"></i></a>
+            </div>
+        </div>
+    </div>
+</template>
+<template>
+    <div class="col-lg-12 col-sm-12 padding-15 text-center">
+        <img src="~/imgs/doggieloadt.svg" id="blogPostLoader" alt="blog post loader"/>
+        <br/>
+        <br/>
+        <span class="font-weight-bold text-black">LOADING</span>
+    </div>
+</template>
+<template>
+
+</template>
+
+@section Scripts {
+    <script src="~/js/homeBlogPosts.js"></script>
+}

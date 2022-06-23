@@ -1,0 +1,32 @@
+﻿@page
+@model ResendEmailConfirmationModel
+@{
+    ViewData["Title"] = "Mike Robinson's Site - Resend email confirmation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/FormStyle.css"/>
+<div class="container my-5">
+
+    <h2>Enter your email.</h2>
+    <hr/>
+    <div class="row">
+        <div class="col-md-4 form-section">
+            <form method="post" class="form-form">
+                <h2 class="mb-0">@ViewData["Title"]</h2>
+                <hr class="mt-0"/>
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="form-floating">
+                    <input asp-for="Input.Email" class="form-control" aria-required="true"/>
+                    <label asp-for="Input.Email" class="form-label"></label>
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+                <button type="submit" class="w-100 btn btn-lg default-btn">Resend</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}

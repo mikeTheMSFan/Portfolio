@@ -1,0 +1,122 @@
+@using Portfolio.Enums
+@using System.Security.Claims
+@using Portfolio.Services.Interfaces
+@model Portfolio.Models.Post
+
+@{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    ViewData["Title"] = "Mike Robinson's Site - Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!-- Begin Edit Posts -->
+<link rel="stylesheet" href="~/css/custom.css"/>
+<div class="container">
+    <h1>Edit Post</h1>
+    <hr/>
+    <div class="row">
+        <div class="col-md-8">
+            <form asp-action="Edit" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group" hidden>
+                    <input asp-for="BlogUserId" value="@userId"/>
+                    <input asp-for="BlogId" value="@Model.BlogId"/>
+                    <input asp-for="Created"/>
+                </div>
+                <input type="hidden" asp-for="Id"/>
+                <div class="form-group">
+                    <label asp-for="Title" class="control-label"></label>
+                    <input asp-for="Title" class="form-control"/>
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Category" class="control-label"></label>
+                    <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories"></select>
+                    <span asp-validation-for="Category" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Abstract" class="control-label"></label>
+                    <textarea asp-for="Abstract" class="form-control"></textarea>
+                    <span asp-validation-for="Abstract" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Content" class="control-label"></label>
+                    <textarea asp-for="Content" class="form-control"></textarea>
+                    <span asp-validation-for="Content" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ReadyStatus" class="control-label"></label>
+                    <select asp-for="ReadyStatus" asp-items="@Html.GetEnumSelectList<ReadyStatus>()" class="form-control"></select>
+                    <span asp-validation-for="ReadyStatus" class="text-danger"></span>
+                </div>
+                @if (Model.FileName == null)
+                {
+                    <div class="form-group">
+                        <div id="image-box" class="image-container"></div>
+                        <div class="my-4">
+                            <div id="slider" class="ep-slider-bar w-100 h-auto"></div>
+                        </div>
+                        <button class="my-5 btn btn-outline-info" id="crop-btn" style="width: 100%; margin-top: 30px; display: none;" type="button">Crop</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group">
+                        <div id="image-box" class="image-container">
+                            <img id="image" src="@Model.FileName" alt="post image"/>
+                        </div>
+                        <div class="my-4">
+                            <div id="slider" class="ep-slider-bar w-100 h-auto"></div>
+                        </div>
+                        <button class="btn btn-outline-info" id="crop-btn" style="width: 100%; margin-top: 10px; display: none;" type="button">Crop</button>
+                    </div>
+                }
+                <div class="form-group">
+                    <label class="control-label">Image (svg, jpeg, gif, and png files.)</label>
+                    <input type="file" asp-for="Image" class="form-control"/>
+                    <span asp-validation-for="Image" class="text-danger"></span>
+                </div>
+                <div class="form-group mt-5">
+                    <div class="row">
+                        <div class="col">
+                            <label class="control-label">Manage Tags</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="row">
+                                <div class="col">
+                                    <input type="text" class="form-control" id="TagEntry"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col w-100">
+                                    <button type="button" class="btn btn-primary btn-sm w-100" name="Add">Add</button>
+                                </div>
+                                <div class="col">
+                                    <button type="button" class="btn btn-primary btn-sm w-100" name="delete">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <select class="w-100" name="TagValues" id="TagList" multiple></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input id="confirm-btn" type="submit" value="Save" class="btn btn-primary"/>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div>
+        <a asp-action="Index">Back to List</a>
+    </div>
+</div>
+@Html.Hidden("Tags", ViewData["TagValues"])
+
+@section Scripts
+{
+    <script src="~/js/custom.js"></script>
+    <script src="~/js/customCropper.js"></script>
+    <script src="~/js/summerNotePost.js"></script>
+}

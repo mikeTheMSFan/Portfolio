@@ -1,0 +1,147 @@
+/*=========================================
+    Saas Custom Css
+==========================================*/
+.saas .footer-section {
+    background-color: #07122d;
+    position: relative;
+}
+
+.saas .footer-section .wave {
+    background-image: url(/assets/img/elements/footer-wave.svg);
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-size: cover;
+    width: 100%;
+    height: 320px;
+    position: absolute;
+    left: 0;
+    top: -240px;
+}
+
+.saas .play-btn svg {
+    color: #f43e71;
+}
+
+.saas .play-btn a:hover,
+.saas .widget-links li a:hover,
+.saas .footer-widget.link-widget h3 {
+    color: #FFFFFF;
+}
+
+.saas .widget-links li i {
+    color: #f43e71;
+}
+
+.saas .footer-social li a {
+    background-color: #eb6075;
+    color: #fff;
+}
+
+.saas .footer-social li a:hover {
+    background: #f43e71;
+    color: #fff;
+}
+
+.saas .footer-section-inner {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+}
+
+.saas .read-more:hover {
+    color: #f43e71;
+}
+
+.saas .testimonials-carousel-3.carousel-dots .slick-dots li.slick-active button {
+    background-color: #f43e71;
+}
+
+.saas .header-right a.header-btn,
+.saas .subscribe-section .subscribe-form .submit,
+.saas .testi-controls div:hover,
+.saas .cd-pricing-switcher .cd-switch,
+.saas .default-btn {
+    background: #f43e71;
+}
+
+.saas .scroll-to-top {
+    background-color: #f43e71;
+}
+
+.saas .nav-style .slick-arrow {
+    color: #777;
+}
+
+.saas .nav-style .slick-arrow {
+    background-color: #f43e71;
+    color: #fff;
+}
+
+.saas .testimonial-section {
+    z-index: 10;
+}
+
+/*======================================================
+    Shape
+=======================================================*/
+.shape {
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: left top;
+    background-size: contain;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.shape.shape-1 {
+    background-image: url(/assets/img/elements/shape01.svg);
+    background-size: 100%;
+    width: 1000px;
+    height: 1000px;
+    left: -305px;
+    top: -392px;
+}
+
+.shape.shape-2 {
+    background-image: url(/assets/img/elements/shape02.svg);
+    background-size: 100%;
+    width: 1000px;
+    height: 1000px;
+    right: -300px;
+    top: -50px;
+}
+
+.saas .content-img-2 {
+    transform: scale(1.2);
+}
+
+.dot-pattern {
+    background-image: url(/assets/img/pattern-2.png);
+    width: 100px;
+    height: 210px;
+    left: 0;
+    top: 10%;
+}
+
+.content-section,
+.testimonial-section,
+.pricing-section {
+    position: relative;
+}
+
+.content-section .dot-pattern,
+.testimonial-section .dot-pattern {
+    left: auto;
+    right: 0;
+    top: 0;
+}
+
+/*Override theme font-size*/
+.header-font-size {
+    font-size: 35px !important;
+}
+
+@media (max-width: 768px) {
+    .saas section {
+        overflow: hidden;
+    }
+}

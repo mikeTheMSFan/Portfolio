@@ -1,0 +1,151 @@
+@model CommentViewModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    if (TempData.ContainsKey("StatusMessage"))
+    {
+        var message = TempData["StatusMessage"] as string;
+        <partial name="_StatusMessage" for="@message"/>
+    }
+}
+<div class="container">
+    <table class="table">
+        @if (Model.IsDeleted == false && Model.IsModerated == false)
+        {
+            <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Comments.GetEnumerator().Current.Body)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Comments.GetEnumerator().Current.Created)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Comments.GetEnumerator().Current.BlogUser)
+                </th>
+                <th></th>
+            </tr>
+            </thead>
+        }
+        else if (Model.IsDeleted == false && Model.IsModerated)
+        {
+            <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Comments.GetEnumerator().Current.Body)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Comments.GetEnumerator().Current.ModeratedBody)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Comments.GetEnumerator().Current.Moderated)
+                </th>
+                <th>
+                    <span>Reason for moderation"</span>"
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Comments.GetEnumerator().Current.Moderator)
+                </th>
+                <th></th>
+            </tr>
+            </thead>
+        }
+        else if (Model.IsDeleted && Model.IsModerated)
+        {
+            <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Comments.GetEnumerator().Current.BlogUser)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Comments.GetEnumerator().Current.Body)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Comments.GetEnumerator().Current.Deleted)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Comments.GetEnumerator().Current.Moderator)
+                </th>
+                <th></th>
+            </tr>
+            </thead>
+        }
+        <tbody>
+        @if (Model.IsDeleted == false && Model.IsModerated == false)
+        {
+            @foreach (var item in Model.Comments)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Body)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Created)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.BlogUser!.FullName)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                    </td>
+                </tr>
+            }
+        }
+        else if (Model.IsDeleted == false && Model.IsModerated)
+        {
+            @foreach (var item in Model.Comments)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Body)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ModeratedBody)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Moderated)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ModerationType)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Moderator!.FullName)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="SDelete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+        else if (Model.IsDeleted && Model.IsModerated)
+        {
+            @foreach (var item in Model.Comments)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.BlogUser!.FullName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Body)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Deleted)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Moderator!.FullName)
+                    </td>
+                    <td>
+                        <a asp-action="SRestore" asp-route-id="@item.Id">Restore</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+</div>

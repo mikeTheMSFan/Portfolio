@@ -1,0 +1,94 @@
+/*=========================================
+    Construction Demo Css
+==========================================*/
+
+.construction .main-slider .slick-dots li.slick-active button,
+.construction .header-right a.header-btn,
+.construction .main-slider .slide-btn,
+.construction .subscribe-form .submit,
+.construction .footer-social li a:hover,
+.construction .default-btn,
+.construction .footer-cta-inner,
+.construction .blog-item .blog-thumb .category,
+.construction .service-section-3 .service-content .service-icon {
+    background: #fab702;
+}
+
+.construction .main-slider .slide-btn {
+    margin-top: 20px;
+}
+
+.construction .service-section-3 .service-content .service-icon {
+    box-shadow: 0 5px 20px 0 rgba(250, 183, 2, .8);
+}
+
+.construction .service-section-3 .section-heading h4 {
+    background-color: rgba(250, 183, 2, .8);
+    color: #fff;
+}
+
+.construction .project-thumb .dir-overlay {
+    background: rgba(250, 183, 2, .8);
+}
+
+.construction .nav-style .slick-arrow:hover,
+.construction .section-heading h4,
+.construction .project-content h4 a {
+    background-color: #fab702;
+    color: #fff;
+}
+
+.construction .footer-cta-list .default-btn,
+.construction .blog-item .blog-thumb .category:hover {
+    background: #051441;
+    color: #fff;
+}
+
+.construction .project-content h4 a:hover {
+    background-color: #051441;
+}
+
+.construction .scroll-to-top,
+.construction .carousel-dots .slick-dots li.slick-active button {
+    background-color: #fab702;
+}
+
+.construction .dl-subscribe-form .submit:hover {
+    background: #fff;
+    color: #051441;
+}
+
+.construction .read-more:hover,
+.construction .post-meta .meta-list h4 i,
+.construction .post-meta .meta-list h4 a:hover,
+.construction .dl-subscribe-form .submit:hover i {
+    color: #fab702;
+}
+
+.construction .widget-links li i,
+.construction .thumb-post .thumb-post-meta .date i {
+    color: #fab702;
+}
+
+.construction .nav-style .slick-arrow {
+    background-color: #fab702;
+    color: #fff;
+}
+
+.construction .footer-widget .booking-wrap svg {
+    fill: #fab702;
+}
+
+.construction .nice-select .option:hover, .nice-select .option.focus, .nice-select .option.selected.focus {
+    background: #fab702;
+    color: #fff;
+}
+
+.construction .play-btn .play-icon svg {
+    color: #fab702;
+}
+
+
+.construction .slider-content {
+    margin-left: 60px;
+}

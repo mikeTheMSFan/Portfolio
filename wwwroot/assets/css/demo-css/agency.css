@@ -1,0 +1,40 @@
+/*=========================================
+    Agency Demo Css
+==========================================*/
+
+.agency .header-right a.header-btn,
+.agency .portfolio-content:before,
+.agency .scroll-to-top,
+.agency .subscribe-form .submit,
+.agency .footer-social li a:hover,
+.agency .footer-info-inner,
+.agency .blog-item .blog-thumb .category,
+.agency .carousel-dots .slick-dots li.slick-active button,
+.agency .nav-style .slick-arrow,
+.agency .section-heading h4,
+.agency .promo-item h4:before,
+.agency .default-btn {
+    background: #ff5800;
+}
+
+.agency .thumb-post .thumb-post-meta .date i,
+.agency .widget-links li i,
+.agency .post-meta .meta-list h4 i,
+.agency .read-more:hover,
+.agency .play-btn svg {
+    color: #ff5800;
+}
+
+.agency .section-heading h4 {
+    color: #fff;
+}
+
+.agency .subscribe-form .submit:hover,
+.agency .blog-item .blog-thumb .category:hover {
+    background: #ff5800;
+    opacity: 0.9;
+}
+
+.agency .footer-widget .booking-wrap svg {
+    fill: #ff5800;
+}

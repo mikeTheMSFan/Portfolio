@@ -1,0 +1,9 @@
+﻿#profileImage {
+    height: 40px;
+    border-radius: 50%;
+}
+
+.commentAvatar {
+    margin-left: 8px;
+    height: 65px;
+}

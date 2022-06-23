@@ -1,0 +1,34 @@
+﻿.pagination-wrap li.active span {
+    border: 1px solid #e5e5e5;
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    line-height: 38px;
+    text-align: center;
+    color: #051441;
+    font-weight: 600;
+    border-radius: 2px;
+    background-color: #f43e71;
+    color: #fff;
+}
+
+.page-item.active .page-link {
+    border: 1px solid #e5e5e5;
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    line-height: 38px;
+    text-align: center;
+    color: #051441;
+    font-weight: 600;
+    border-radius: 2px;
+    background-color: #f43e71;
+    color: #fff;
+}
+
+.pagination-wrap li a:hover {
+    background-color: #f43e71;
+    color: #fff;
+    opacity: 1;
+    text-decoration: none;
+}

@@ -1,0 +1,85 @@
+@using Microsoft.AspNetCore.Identity
+@using Portfolio.Services.Interfaces
+@inject SignInManager<BlogUser> SignInManager
+@inject UserManager<BlogUser> UserManager
+@inject IRemoteImageService RemoteImageService
+@{
+    var user = await UserManager.FindByIdAsync(UserManager.GetUserId(User));
+    var avatar = string.Empty;
+    var imageTag = string.Empty;
+    if (User.Identity!.IsAuthenticated)
+    {
+        var fileName = user.FileName;
+        avatar = fileName ?? avatar;
+        imageTag = avatar == string.Empty ? imageTag : $"<img id=\"profileImage\" src=\"{avatar}\" alt=\"profile image\"/>&nbsp;&nbsp;&nbsp;";
+    }
+}
+@if (SignInManager.IsSignedIn(User))
+{
+    <li>
+        <a href="">Admin</a>
+        <ul>
+            <li>
+                <span>@Html.Raw(imageTag) @user.FullName</span>
+                <hr/>
+            </li>
+            <li>
+
+                <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Manage Account</a>
+            </li>
+            <li class="logoutLink">
+                <a href="javascript:void(0);" onclick="document.querySelector('.logoutForm').submit()" onKeyDown="keyhandler_for_space()">Logout</a>
+            </li>
+            @if (User.IsInRole("Administrator"))
+            {
+                <li>
+                    <hr/>
+                </li>
+                <li>
+                    <a asp-controller="Posts" asp-action="AllAuthorPosts">View Your Posts</a>
+                </li>
+                <li>
+                    <a asp-controller="Blogs" asp-action="UserBlogs">View Your Blogs</a>
+                </li>
+                <li>
+                    <a asp-controller="Posts" asp-action="Create">Create Post </a>
+                </li>
+                <li>
+                    <a asp-controller="Projects" asp-action="Create">Create Project </a>
+                </li>
+            }
+            @if (User.IsInRole("Moderator") || User.IsInRole("Administrator"))
+            {
+                <li>
+                    <hr/>
+                </li>
+                <li>
+                    <a asp-controller="Comments" asp-action="AllComments">Approved Comments</a>
+                </li>
+                <li>
+                    <a asp-controller="Comments" asp-action="ModeratedIndex">Moderated Comments</a>
+                </li>
+                <li>
+                    <a asp-controller="Comments" asp-action="DeletedIndex">Soft-deleted Comments</a>
+                </li>
+            }
+        </ul>
+    </li>
+    <li hidden>
+        <form asp-area="Identity" class="logoutForm" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"></form>
+    </li>
+}
+else
+{
+    <li>
+        <a href="">Account</a>
+        <ul>
+            <li>
+                <a asp-area="Identity" asp-page="/Account/Register">Register</a>
+            </li>
+            <li>
+                <a asp-area="Identity" asp-page="/Account/Login">Login</a>
+            </li>
+        </ul>
+    </li>
+}

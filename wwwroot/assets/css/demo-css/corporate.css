@@ -1,0 +1,99 @@
+/*=========================================
+    Corporate Demo Css
+==========================================*/
+
+.corporate .main-slider .slick-dots li.slick-active button,
+.corporate .main-slider .slide-btn,
+.corporate .header-right a.header-btn,
+.corporate .default-btn,
+.corporate .faq-section .about-bg-holder .color-shape,
+.corporate .subscribe-form .submit,
+.corporate .scroll-to-top,
+.corporate .faq-accordion [aria-expanded="true"],
+.corporate .blog-item .blog-thumb .category,
+.corporate .portfolio-content:before,
+.corporate .service-section-2 .service-item .read-more,
+.corporate .service-section-2 .service-item:before,
+.corporate .skills-items .skills-item .progress .progress-bar {
+    background: #f81f01;
+    background: -webkit-linear-gradient(145deg, #f81f01, #ee076e);
+    background: -webkit-linear-gradient(305deg, #f81f01, #ee076e);
+    background: linear-gradient(145deg, #f81f01, #ee076e);
+}
+
+.corporate .service-section-2 .service-item .service-icon {
+    background: #f81f01;
+    background: -webkit-linear-gradient(145deg, #f81f01, #ee076e);
+    background: -webkit-linear-gradient(305deg, #f81f01, #ee076e);
+    background: linear-gradient(145deg, #f81f01, #ee076e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 35px;
+}
+
+.corporate .section-heading h4 {
+    background: #f81f01;
+    background: -webkit-linear-gradient(145deg, #f81f01, #ee076e);
+    background: -webkit-linear-gradient(305deg, #f81f01, #ee076e);
+    background: linear-gradient(145deg, #f81f01, #ee076e);
+    color: #fff;
+}
+
+.corporate .play-btn .play-icon,
+.corporate .widget-links li i,
+.corporate .thumb-post .thumb-post-meta .date i,
+.corporate .testimonial-nav .slick-arrow:hover,
+.corporate .about-section-2 .short-intro .intro-thumb .play-btn a,
+.corporate .about-section-2 .section-heading h3 span i,
+.corporate .post-meta .meta-list h4 i,
+.corporate .portfolio-filter li.active {
+    color: #f81f01;
+}
+
+.corporate .footer-top {
+    padding: 100px 0;
+}
+
+.corporate .footer-widget .booking-wrap svg {
+    fill: #f81f01;
+}
+
+.corporate .nav-style .slick-arrow:hover,
+.corporate .footer-social li a:hover,
+.corporate .dl-subscribe-form .submit:hover,
+.corporate .about-section-2 .short-intro .intro-thumb .play-btn a:hover,
+.corporate .blog-item .blog-thumb .category:hover {
+    background: #f81f01;
+    background: -webkit-linear-gradient(145deg, #ee076e, #f81f01);
+    background: -webkit-linear-gradient(305deg, #ee076e, #f81f01);
+    background: linear-gradient(145deg, #ee076e, #f81f01);
+    color: #fff;
+}
+
+.corporate .cta-section-2 .overlay {
+    background: #07122D;
+    opacity: 0.9;
+}
+
+.corporate .carousel-dots .slick-dots li.slick-active button {
+    background: #f81f01;
+    background: -webkit-linear-gradient(145deg, #ee076e, #f81f01);
+    background: -webkit-linear-gradient(305deg, #ee076e, #f81f01);
+    background: linear-gradient(145deg, #ee076e, #f81f01);
+}
+
+.corporate .nav-style .slick-arrow {
+    background: #f81f01;
+    background: -webkit-linear-gradient(145deg, #ee076e, #f81f01);
+    background: -webkit-linear-gradient(305deg, #ee076e, #f81f01);
+    background: linear-gradient(145deg, #ee076e, #f81f01);
+    color: #fff;
+}
+
+.corporate .about-section .section-heading h3 span i {
+    color: #ee076e;
+}
+
+.corporate .sponsor-section {
+    padding: 60px 0;
+}

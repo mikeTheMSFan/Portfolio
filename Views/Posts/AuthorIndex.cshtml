@@ -1,0 +1,118 @@
+﻿@using X.PagedList.Mvc.Core
+@using X.PagedList.Web.Common
+@model X.PagedList.IPagedList<Post>
+
+@{
+    ViewData["Title"] = "Mike Robinson's Site - Your Posts";
+}
+
+@{
+    var action = Context.Request.RouteValues["Action"]!.ToString();
+}
+
+<link rel="stylesheet" href="~/css/pagination.css"/>
+<link rel="stylesheet" href="~/css/searchbar.css"/>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12 mx-auto">
+            @if (User.IsInRole("Administrator"))
+            {
+                <table>
+                    <tr>
+                        <a asp-action="Create">Create Post</a> |
+                    </tr>
+                    <tr>
+                        <a asp-action="AllAuthorPosts">Your Posts</a>
+                    </tr>
+                </table>
+            }
+            <form asp-action="AuthorSearch">
+                <div class="search">
+                    <i class="la la-search"></i> <input name="term" type="text" class="w-100" placeholder="Search your posts here..."> <button>Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @if (Model.Any() == false)
+    {
+        <h3 class="my-3">No posts found...</h3>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.GetEnumerator().Current.Title)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.GetEnumerator().Current.Created)
+                </th>
+                <th class="d-none d-md-table-cell" scope="col">
+                    @Html.DisplayNameFor(model => model.GetEnumerator().Current.Blog)
+                </th>
+                <th class="d-none d-md-table-cell" scope="col">
+                    @Html.DisplayNameFor(model => model.GetEnumerator().Current.BlogUser)
+                </th>
+                <th class="d-none d-md-table-cell" scope="col">
+                    @Html.DisplayNameFor(model => model.GetEnumerator().Current.Category)
+                </th>
+                <th class="d-none d-md-table-cell" scope="col">
+                    @Html.DisplayNameFor(model => model.GetEnumerator().Current.ReadyStatus)
+                </th>
+                <th class="d-none d-md-table-cell" scope="col">
+                    Actions
+                </th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Title)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Created)
+                    </td>
+                    <td class="d-none d-md-table-cell">
+                        @Html.DisplayFor(modelItem => item.Blog!.Description)
+                    </td>
+                    <td class="d-none d-md-table-cell">
+                        @Html.DisplayFor(modelItem => item.BlogUser!.FullName)
+                    </td>
+                    <td class="d-none d-md-table-cell">
+                        @Html.DisplayFor(modelItem => item.Category!.Name)
+                    </td>
+                    <td class="d-none d-md-table-cell">
+                        @Html.DisplayFor(modelItem => item.ReadyStatus)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+
+        <!--Add paging controls here-->
+        <div class="row">
+            <div class="col h5 text-left mt-5">
+                Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                @Html.PagedListPager(Model, page => Url.Action(action, new { page }),
+                    new PagedListRenderOptions
+                    {
+                        UlElementClasses = new[] { "pagination-wrap", "text-left" },
+                        ActiveLiElementClass = "active"
+                    })
+            </div>
+        </div>
+    }
+</div>

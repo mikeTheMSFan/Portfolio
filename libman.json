@@ -1,0 +1,24 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "sweetalert@2.1.2",
+      "destination": "wwwroot/lib/sweetalert/"
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "@abp/sweetalert2@5.1.4",
+      "destination": "wwwroot/lib/abp/sweetalert2/"
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "sweetalert2@11.4.8",
+      "destination": "wwwroot/lib/sweetalert2/"
+    },
+    {
+      "library": "cropperjs@1.5.12",
+      "destination": "wwwroot/lib/cropperjs/"
+    }
+  ]
+}

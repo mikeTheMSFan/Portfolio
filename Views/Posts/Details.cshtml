@@ -1,0 +1,257 @@
+@using Portfolio.Services.Interfaces
+@using Microsoft.AspNetCore.Identity
+@model PostViewModel
+@inject INoAvatarService AvatarService
+@inject UserManager<BlogUser> UserManager
+
+@{
+    ViewData["Title"] = "Mike Robinson's Site - Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!-- Begin Details Post -->
+@{
+    var postId = Model.Post!.Id;
+    TempData["postId"] = postId;
+    var message = "";
+    if (TempData.ContainsKey("StatusMessage"))
+    {
+        message = TempData["StatusMessage"]?.ToString();
+    }
+
+    var imageTag = string.Empty;
+    var user = await UserManager.FindByIdAsync(UserManager.GetUserId(User));
+    var author = await UserManager.FindByIdAsync(Model.Post.BlogUserId);
+
+}
+<partial name="_StatusMessage" for="@message"/>
+<section class="blog-section padding">
+<div class="container">
+<div class="blog-wrap row">
+<div class="col-lg-8 padding-15">
+    <div class="blog-single-wrap">
+        <div class="blog-thumb">
+            <img src="@Model.Post.FileName" alt="img">
+        </div>
+        <div class="blog-single-content">
+            <h2>
+                <a href="#">@Model.Post.Title</a>
+            </h2>
+            <ul class="single-post-meta">
+                <li>
+                    <i class="fas fa-user"></i> <a href="#">@Model.Post.BlogUser!.FullName</a>
+                </li>
+                <li>
+                    <i class="fas fa-calendar"></i> <a href="#">@Model.Post.Created.ToString("dd MMM, yyyy")</a>
+                </li>
+                <li>
+                    <i class="fas fa-comments"></i> <a href="#">@Model.Post.Comments!.Count Comments</a>
+                </li>
+            </ul>
+
+            @Html.Raw(Model.Post.Content)
+
+            @if (Model.Post.Tags!.Any())
+            {
+                <ul class="post-tags">
+                    @foreach (var tag in Model.Post.Tags!)
+                    {
+                        <li>
+                            <a asp-action="Tag" asp-controller="Posts" asp-route-tagValue="@tag.Text">@tag.Text</a>
+                        </li>
+                    }
+                </ul>
+                <!-- /.post-tags -->
+            }
+
+            <div class="author-box bg-red">
+                <img src="@author.FileName" alt="img">
+                <div class="author-info">
+                    <h3>@Model.Post.BlogUser!.FullName</h3>
+                    <p>@Model.Post.BlogUser.AuthorDescription</p>
+                    <ul class="social-icon">
+                        @if (string.IsNullOrEmpty(Model.Post.BlogUser.FacebookUrl) == false)
+                        {
+                            <li>
+                                <a href="@Model.Post.BlogUser.FacebookUrl" target="_blank">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                            </li>
+                        }
+                        @if (string.IsNullOrEmpty(Model.Post.BlogUser.TwitterUrl) == false)
+                        {
+                            <li>
+                                <a href="@Model.Post.BlogUser.TwitterUrl" target="_blank">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                            </li>
+                        }
+                        @if (string.IsNullOrEmpty(Model.Post.BlogUser.InstagramUrl) == false)
+                        {
+                            <li>
+                                <a href="@Model.Post.BlogUser.InstagramUrl" target="_blank">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                            </li>
+                        }
+                        @if (string.IsNullOrEmpty(Model.Post.BlogUser.PinterestUrl) == false)
+                        {
+                            <li>
+                                <a href="@Model.Post.BlogUser.PinterestUrl" target="_blank">
+                                    <i class="fab fa-pinterest"></i>
+                                </a>
+                            </li>
+                        }
+                        @if (string.IsNullOrEmpty(Model.Post.BlogUser.YouTubeUrl) == false)
+                        {
+                            <li>
+                                <a href="@Model.Post.BlogUser.YouTubeUrl" target="_blank">
+                                    <i class="fab fa-youtube"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div><!-- /.author-box -->
+
+            <div class="comments-area">
+                <div class="comments-section">
+                    <h3 class="comments-title">Posts Comments</h3>
+                    @if (Model.Post.Comments.Any() == false)
+                    {
+                        <p>No comments yet...</p>
+                    }
+                    <ol class="comments">
+                        @foreach (var comment in Model.Post.Comments.OrderByDescending(c => c.Created))
+                        {
+                            <li class="comment">
+                                <div>
+                                    <div class="comment-thumb">
+                                        <div class="comment-img">
+                                            @{
+                                                var commentUser = await UserManager.FindByIdAsync(comment.BlogUserId);
+                                                imageTag = commentUser.FileName == null ?
+                                                    $"<img src=\"{AvatarService.GetAvatar()}\" alt=\"profile picture\" />" :
+                                                    $"<img class=\"commentAvatar\" src=\"{commentUser.FileName}\" alt=\"profile picture\" />";
+                                            }
+                                            @Html.Raw(imageTag)
+                                        </div>
+                                    </div>
+                                    <div class="comment-main-area">
+                                        <div class="comment-wrapper">
+                                            <div class="comments-meta">
+                                                <h4>
+                                                    @comment.BlogUser!.FullName <span class="comments-date">@comment.Created.ToString("D")</span>
+                                                </h4>
+                                            </div>
+                                            <div class="comment-area">
+                                                @Html.Raw(comment.Body)
+                                                @if (User.IsInRole("Moderator") || User.IsInRole("Administrator"))
+                                                {
+                                                    <div class="comments-reply">
+                                                        <a class="comment-reply-link" asp-controller="Comments" asp-action="Edit" asp-route-id="@comment.Id">
+                                                            <span>Moderate</span>
+                                                        </a>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ol>
+                </div> <!-- end comments-section -->
+                <div class="comment-respond">
+                    @if (User.Identity!.IsAuthenticated)
+                    {
+                        <h3 class="comment-reply-title">Write a Comment</h3>
+                        <form id="commentform" class="comment-form" asp-controller="Comments" asp-action="Create">
+                            <div class="form-group" hidden>
+                                <input name="slug" value="@Model.Post.Slug!.ToLower()"/>
+                                <input asp-for="Comment!.PostId" value="@Model.Post!.Id"/>
+                                <input asp-for="Comment!.BlogUserId" value="@user.Id"/>
+                            </div>
+                            <div class="form-textarea">
+                                <span asp-validation-for="Comment!.Body" class="text-danger"></span>
+                                <textarea asp-for="Comment!.Body" rows="4" placeholder="Write Your Comments..."></textarea>
+                            </div>
+                            <div class="form-submit mt-3">
+                                <input id="submit" value="Post Comment" type="submit">
+                            </div>
+                        </form>
+                    }
+
+                    else
+                    {
+                        <h3 class="comment-reply-title">Please login to write a Comment</h3>
+                    }
+                </div>
+            </div><!-- /.comments-area -->
+        </div>
+    </div><!--/.blog-single-->
+</div><!--/.col-lg-8-->
+
+<div class="col-lg-4 padding-15">
+    <div class="sidebar-wrap">
+        <div class="widget-content">
+            <form asp-controller="Blogs" asp-action="SearchArticles" class="search-form">
+                <input type="hidden" name="authorId" value="@Model.Post.BlogUserId"/>
+                <input name="term" type="text" class="form-control" placeholder="Search for post here...">
+                <button class="search-btn" type="button">
+                    <i class="fa fa-search"></i>
+                </button>
+            </form>
+        </div><!-- ./widget-content -->
+        <div class="widget-content categories">
+            <h3>Categories</h3>
+            <ul class="widget-links">
+                @foreach (var category in Model.Post.Blog!.Categories!)
+                {
+                    <li>
+                        <i class="fas fa-square-full"></i><a asp-controller="Blogs" asp-route-slug="@Model.Post.Blog.Slug" asp-action="DisplayArticlesByCategory" asp-route-categoryName="@category.Name">@category.Name</a>
+                    </li>
+                }
+            </ul>
+        </div><!-- ./widget-content -->
+        <div class="widget-content">
+            <h3>Recent DisplayArticles</h3>
+            <ul class="thumb-post">
+                @foreach (var article in Model.Post.Blog.Posts.Take(4))
+                {
+                    <li>
+                        <div class="thumb">
+                            <img src="@article.FileName" alt="thumb">
+                        </div>
+                        <div class="thumb-post-meta">
+                            <h3>
+                                <a asp-action="Details" asp-route-slug="@article.Slug">@article.Title</a>
+                            </h3>
+                            <a asp-action="Details" asp-route-slug="@article.Slug" class="date">
+                                <i class="far fa-calendar-alt"></i>@article.Created.ToString("d")
+                            </a>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div><!-- /.widget-content -->
+        <div class="widget-content">
+            <h3>Tag Clouds</h3>
+            <ul class="tags">
+                @foreach (var tag in ((List<Tag>)ViewData["tags"]!).Select(t => t.Text).Distinct())
+                {
+                    <li>
+                        <a asp-action="Tag" asp-controller="Posts" asp-route-tagValue="@tag">@tag</a>
+                    </li>
+                }
+            </ul>
+        </div><!-- /.widget-content -->
+    </div><!-- /.sidebar-wrap -->
+</div><!-- /.col-lg-4 -->
+</div><!--/.blog-wrap-->
+</div>
+</section><!--/.blog-section-->
+
+@section Scripts
+{
+    <script src="~/js/summerNoteComment.js"></script>
+}

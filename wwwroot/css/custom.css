@@ -1,0 +1,25 @@
+﻿button.btn-sm, a-btn-sm {
+    line-height: .8;
+    border-radius: 0px;
+}
+
+option {
+    font-weight: bolder;
+}
+
+div.swal2-container.swal2-center.swal2-backdrop-show > div {
+    outline: 2px solid black;
+    border-radius: 0px;
+}
+
+.authorName {
+    color: black;
+}
+
+.padding-heading-left {
+    padding-left: 45px;
+}
+
+#slider {
+    display: none;
+}

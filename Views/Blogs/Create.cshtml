@@ -1,0 +1,116 @@
+@using Microsoft.AspNetCore.Identity
+@using System.Collections.Immutable
+@using System.Security.Claims
+@using X.PagedList
+@model Portfolio.Models.Blog
+@inject UserManager<BlogUser> UserManager
+
+@{
+    //Page Title
+    ViewData["Title"] = "Mike Robinson's Site - Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (ViewData.ContainsKey("BadWords"))
+{
+    var badWords = TempData["BadWords"] as List<string>;
+    var badWordString = string.Join(", ", badWords!);
+    <partial name="_StatusMessage" for="@badWordString"/>
+}
+
+@if (ViewData.ContainsKey("CategoryValues") && ViewData["CategoryValues"] != null)
+{
+    @Html.Hidden("Categories", Html.Raw(ViewData["CategoryValues"]!.ToString()))
+}
+else
+{
+    @Html.Hidden("Categories", "")
+}
+
+@if (ViewData.ContainsKey("BadWords"))
+{
+    var badWords = TempData["BadWords"] as List<string>;
+    var badWordsString = string.Join(", ", badWords!);
+    var badWordAlert = $"You have more than 5 bad words in your form, please look for {badWordsString}.";
+    <partial name="_StatusMessage" for="@badWordAlert"/>
+}
+
+<link rel="stylesheet" href="~/css/custom.css"/>
+<!-- Begin Create Blogs -->
+<div class="container">
+    <h1>Create</h1>
+
+    <h4>Blog</h4>
+    <hr/>
+    <div class="row">
+        <div class="col-md-8">
+            <form asp-controller="Blogs" asp-action="Create" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group" hidden>
+                    <input asp-for="AuthorId" value="@UserManager.GetUserId(User)"/>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control"/>
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Description" class="control-label"></label>
+                    <textarea asp-for="Description" class="form-control"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <div id="image-box" class="image-container"></div>
+                    <div class="my-4">
+                        <div id="slider" class="ep-slider-bar w-100 h-auto"></div>
+                    </div>
+                    <button class="btn btn-outline-info" id="crop-btn" style="width: 100%; margin-top: 10px; display: none;" type="button">Crop</button>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Image (svg, jpeg, gif, and png files.)</label>
+                    <input type="file" asp-for="Image" class="form-control"/>
+                    <span asp-validation-for="Image" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col">
+                            <label class="control-label">Manage Categories</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="row">
+                                <div class="col">
+                                    <input type="text" class="form-control" id="CategoryEntry"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col w-100">
+                                    <button type="button" class="btn btn-primary btn-sm w-100" name="Add">Add</button>
+                                </div>
+                                <div class="col">
+                                    <button type="button" class="btn btn-primary btn-sm w-100" name="delete">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <select class="w-100" size="5" name="CategoryValues" id="CategoryList" multiple></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input id="confirm-btn" type="submit" value="Create" class="btn btn-primary"/>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div>
+        <a asp-action="Index">Back to List</a>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/js/customBlog.js"></script>
+    <script src="~/js/customCropper.js"></script>
+}

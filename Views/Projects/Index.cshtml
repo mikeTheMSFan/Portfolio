@@ -1,0 +1,63 @@
+﻿@model IEnumerable<Project>
+
+@{
+    ViewData["Title"] = "Mike Robinson's Site - Current Projects";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section id="projects" class="project-section padding">
+    <div class="bg-dark"></div>
+    <div class="container">
+        <div class="section-heading-wrap row mb-40">
+            <div class="col-12">
+                <div class="section-heading text-center">
+                    <h4>All Projects</h4>
+                    <h2>Web development projects</h2>
+                    <p>Below are all of the projects that I have done, thank you for your interest! :)</p>
+                    <hr/>
+                </div>
+            </div>
+        </div>
+        <div class="row project-items">
+            @if (Model.Any() == false)
+            {
+                <h3 class="w-100 text-center">There are no projects as of yet. <br> Please check back later.</h3>
+            }
+            @foreach (var project in Model)
+            {
+                <div class="col-md-4 col-sm-6 sm-padding">
+                    <div class="project-item">
+                        <div class="project-thumb canvasT">
+                            <img src="@Html.Raw(project.FileName)" alt="thumb">
+                            <div class="dir-overlay" style="display: flex; left: -100%; top: 0px; transition: all 300ms ease 0s;">
+                                <a class="venobox vbox-item" data-gall="myGallery" href="@Html.Raw(project.FileName)">
+                                    <i class="las la-plus"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3>
+                                <a href="@Html.Raw(project.ProjectUrl)" target="_blank" class="text-decoration-underline">@project.Title</a>
+                                <hr/>
+                            </h3>
+                            <h4>
+                                <a href="@Html.Raw(project.ProjectUrl)" target="_blank">@project.Type</a>
+                            </h4>
+                            <h5>
+                                <a class="blackText" href="@Html.Raw(project.ProjectUrl)" target="_blank">@project.Description</a>
+                            </h5>
+                            <a href="@Html.Raw(project.ProjectUrl)" target="_blank" class="read-more">Visit<i class="las la-long-arrow-alt-right"></i></a>
+                        </div>
+                    </div>
+                    @if (User.IsInRole("Administrator"))
+                    {
+                        <hr class="mt-0"/>
+                        <a asp-action="Edit" asp-route-id="@project.Id">Edit</a>
+                        <span>|</span>
+                        <a asp-action="Delete" asp-route-id="@project.Id">Delete</a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</section>
