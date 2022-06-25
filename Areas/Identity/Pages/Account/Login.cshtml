@@ -73,7 +73,12 @@
                                 <p>
                                     @foreach (var provider in Model.ExternalLogins!)
                                     {
-                                        <button type="submit" class="btn default-btn" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                        var providerDisplayName = provider.DisplayName;
+                                        if (provider.DisplayName == "OpenIdConnect")
+                                        {
+                                            providerDisplayName = "Microsoft";
+                                        }
+                                        <button type="submit" class="btn default-btn" name="provider" value="@provider.Name" title="Log in using your @providerDisplayName account">@providerDisplayName</button>
                                     }
                                 </p>
                             </div>

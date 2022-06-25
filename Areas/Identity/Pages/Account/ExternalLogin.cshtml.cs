@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Identity.Web;
 using Portfolio.Extensions;
 using Portfolio.Models;
 using Portfolio.Services.Interfaces;
@@ -23,6 +24,7 @@ using SixLabors.ImageSharp;
 namespace Portfolio.Areas.Identity.Pages.Account;
 
 [AllowAnonymous]
+[AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
 public class ExternalLoginModel : PageModel
 {
     private readonly IBlogEmailSender _emailSender;
@@ -134,7 +136,7 @@ public class ExternalLoginModel : PageModel
             {
                 try
                 {
-                    var token = info.AuthenticationTokens.FirstOrDefault()!.Value;
+                    var token = info.AuthenticationTokens.FirstOrDefault(t => t.Name == "id_token")!.Value;
                     base64ProfilePicture = await _externalLoginService.GetMicrosoftGraphPhotoAsync(token);
                 }
                 catch (Exception)

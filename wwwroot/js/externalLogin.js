@@ -22,5 +22,8 @@
                 // Add file to profile picture input.
                 profilePictureInput.files = container.files;
             });
+    } else {
+        const profileBlock = document.querySelector('.profileBlock');
+        $(profileBlock).show();
     }
 });

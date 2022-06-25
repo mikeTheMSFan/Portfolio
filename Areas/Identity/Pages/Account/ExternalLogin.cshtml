@@ -1,5 +1,6 @@
 ﻿@page
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.Identity.Web
 @model ExternalLoginModel
 @{
     ViewData["Title"] = "Mike Robinson's Site - Register";
@@ -40,7 +41,10 @@
                     <label asp-for="Input.Email" class="form-label"></label>
                     <input asp-for="Claims.FirstName" class="form-control" autocomplete="FirstName" hidden/>
                     <input asp-for="Claims.LastName" class="form-control" autocomplete="LastName" hidden/>
-                    <input asp-for="Claims.ProfilePicture" class="form-control" hidden/>
+                    <div class="profileBlock" hidden>
+                        <label>If you would like to include a profile picture, please select one now.</label>
+                        <input asp-for="Claims.ProfilePicture" class="form-control"/>
+                    </div>
                     <span asp-validation-for="Input.Email" class="text-danger"></span>
                 </div>
                 <button type="submit" class="w-100 btn btn-lg default-btn">Register</button>

@@ -34,12 +34,10 @@ public class BasicExternalLoginService : IExternalLogin
             .WithCertificate(cert.Value)
             .Build();
 
-        //define the applicable scope.
-        var scopes = new[] { "https://graph.microsoft.com/.default" };
-
         //create authentication provider to use with Microsoft Graph.
         var authProvider = new DelegateAuthenticationProvider(async request =>
         {
+            var scopes = new[] { "https://graph.microsoft.com/.default" };
             var assertion = new UserAssertion(token);
             var result = await cca.AcquireTokenOnBehalfOf(scopes, assertion).ExecuteAsync();
 

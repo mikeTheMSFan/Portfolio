@@ -1,9 +1,13 @@
 using System.Reflection;
+using System.Security.Claims;
+using Azure.Identity;
+using Azure.Security.KeyVault.Certificates;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.OpenApi.Models;
 using Portfolio.Data;
 using Portfolio.Extensions;
@@ -34,13 +38,32 @@ builder.Services.AddIdentity<BlogUser, IdentityRole>(options => options.SignIn.R
     .AddDefaultTokenProviders();
 
 //Add Microsoft Authentication (External login)
+string[] initialScopes = configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' ')!;
 builder.Services.AddAuthentication()
-    .AddMicrosoftIdentityWebApp(configuration)
-    .EnableTokenAcquisitionToCallDownstreamApi()
+    .AddMicrosoftIdentityWebApp(configuration.GetSection("AzureAd"))
+    .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
+    .AddMicrosoftGraph(configuration.GetSection("DownstreamApi"))
     .AddInMemoryTokenCaches();
 
+builder.Services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme, options =>
+{
+    options.Authority = "https://login.microsoftonline.com/common/v2.0/";
+    options.ClientId = configuration.GetSection("AzureAd").GetSection("ClientId").Value;
+    options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+    options.CallbackPath = configuration.GetSection("AzureAd").GetSection("CallBackPath").Value;
+    options.RequireHttpsMetadata = false;
+    options.SaveTokens = true;
+    options.GetClaimsFromUserInfoEndpoint = true;
+    options.Scope.Add("email");
+    options.Scope.Add("offline_access");
+    options.Scope.Add("profile");
+    options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "sub");
+    options.ClientSecret = configuration.GetSection("AzureAd").GetSection("ClientSecret").Value;
+    options.SignInScheme = IdentityConstants.ExternalScheme;
+});
+
 //Add Google Authentication
-builder.Services.AddAuthentication()
+    builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
         options.ClientId = configuration.GetSection("GoogleAccount").GetSection("client_id").Value;
@@ -48,17 +71,6 @@ builder.Services.AddAuthentication()
         options.ClaimActions.MapJsonKey("GivenName", "given_name");
         options.ClaimActions.MapJsonKey("Surname", "family_name");
         options.ClaimActions.MapJsonKey("picture", "picture");
-    });
-
-//Setup Microsoft as External Authenticator
-builder.Services
-    .AddOptions()
-    .PostConfigureAll<OpenIdConnectOptions>(o =>
-    {
-        o.ClaimActions.MapJsonKey("GivenName", "given_name");
-        o.ClaimActions.MapJsonKey("Surname", "family_name");
-        o.SignInScheme = IdentityConstants.ExternalScheme;
-        o.SaveTokens = true;
     });
 
 builder.Services.AddControllersWithViews();
@@ -105,7 +117,7 @@ builder.Services.AddSwaggerGen(options =>
         Contact = new OpenApiContact
         {
             Name = "Contact",
-            Url = new Uri("https://localhost:7061/Home/Contact")
+            Url = new Uri("https://www.mikemrobinsondev.com/Home/Contact")
         }
     });
     // using System.Reflection;
