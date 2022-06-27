@@ -12,7 +12,11 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "CipherKey" : "dELqi2Co28AiaPFAUEeSvPJdpZK7K6XILJjRCQ+HCrY=",
+        "AZURE_CLIENT_ID": "bd83aaec-3d3e-4e41-a483-af375f52dc48",
+        "AZURE_CLIENT_SECRET": "I3u8Q~ew0acMjq1ahZG6SHpl-s8icsrQmH0c~bZH",
+        "AZURE_TENANT_ID": "28494028-43ed-4698-bb35-6b320ff3972a"
       },
       "applicationUrl": "https://localhost:7061;http://localhost:5297",
       "dotnetRunMessages": true

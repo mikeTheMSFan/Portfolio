@@ -56,18 +56,25 @@ public class ApiController : Controller
     [Route("api/GetTopThreeBlogPostsByFirstBlog/")]
     public IActionResult GetTopThreeBlogPostsByBlogId()
     {
-        //get all blogs.
-        var blogList = _context.Blogs.ToList();
-
-        //get blog id from the oldest blog.
-        var blogId = blogList.FirstOrDefault(b => b.Created == blogList.Min(blog => blog.Created))!.Id;
-
         //Set json settings
         JsonSerializerOptions options = new()
         {
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
         };
-
+        
+        //get all blogs.
+        var blogList = _context.Blogs.ToList();
+        
+        //get blog id from the oldest blog.
+        var firstBlog = blogList.FirstOrDefault(b => b.Created == blogList.Min(blog => blog.Created));
+        if (firstBlog == null)
+        {
+            var noBlogOutput = new List<Blog>();
+            return Json(new { noBlogOutput }, options);
+        }
+        
+        var blogId = firstBlog.Id;
+        
         //if there is no blog return a new list of post in json form.
         if (BlogExists(blogId) == false)
         {

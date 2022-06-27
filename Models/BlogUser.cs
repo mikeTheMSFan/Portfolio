@@ -55,6 +55,8 @@ public sealed class BlogUser : IdentityUser
     //First and last name
     [NotMapped] [JsonIgnore] public string FullName => $"{FirstName} {LastName}";
 
+    [NotMapped] public string? base64ProfileImage { get; set; } = default!;
+
     //Navigation properties
     [JsonIgnore] public ICollection<Blog> Blogs { get; set; } = new HashSet<Blog>();
 

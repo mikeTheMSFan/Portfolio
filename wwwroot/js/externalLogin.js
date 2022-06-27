@@ -1,5 +1,5 @@
 ﻿$(document).ready(() => {
-    const profilePicture = document.getElementById('profilePicture').value;
+    const profilePicture = document.getElementById('Claims_Base64ProfilePicture').value;
     if (profilePicture) {
         const profilePictureInput = document.getElementById(
             'Claims_ProfilePicture'

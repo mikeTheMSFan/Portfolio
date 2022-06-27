@@ -8,9 +8,9 @@
 <div class="container my-5">
     <p>Your login is protected with an authenticator app. Enter your authenticator code below.</p>
     <div class="row">
-        <div class="col-md-4 form-section">
+        <div class="col-12 col-md-10 col-lg-7 col-xl-6 form-section">
             <form method="post" class="form-form" asp-route-returnUrl="@Model.ReturnUrl">
-                <h2 class="mb-0">@ViewData["Title"]</h2>
+                <h2 class="mb-0">Two-factor authentication</h2>
                 <hr class="mt-0"/>
                 <input asp-for="RememberMe" type="hidden"/>
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>

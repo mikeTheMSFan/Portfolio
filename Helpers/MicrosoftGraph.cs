@@ -1,18 +1,15 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using Azure.Identity;
 using Azure.Security.KeyVault.Certificates;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Portfolio.Extensions;
-using Portfolio.Services.Interfaces;
-using SixLabors.ImageSharp;
-using Image = SixLabors.ImageSharp.Image;
 
-namespace Portfolio.Services;
+namespace Portfolio.Helpers;
 
-public class BasicExternalLoginService : IExternalLogin
+public static class MicrosoftGraph
 {
-    public async Task<string> GetMicrosoftGraphPhotoAsync(string token)
+    public static async Task<GraphServiceClient> GetMicrosoftGraphSingleUserClient (string token)
     {
         //set configuration
         var configuration = GetConfiguration();
@@ -37,7 +34,7 @@ public class BasicExternalLoginService : IExternalLogin
         //create authentication provider to use with Microsoft Graph.
         var authProvider = new DelegateAuthenticationProvider(async request =>
         {
-            var scopes = new[] { "https://graph.microsoft.com/.default" };
+            var scopes = new[] { "user.read" };
             var assertion = new UserAssertion(token);
             var result = await cca.AcquireTokenOnBehalfOf(scopes, assertion).ExecuteAsync();
 
@@ -48,23 +45,10 @@ public class BasicExternalLoginService : IExternalLogin
         //get new instance of Graph Service Client.
         var graphClient = new GraphServiceClient(authProvider);
 
-        //use Graph client to get stream of photo.
-        var stream = await graphClient.Me.Photos["120x120"]
-            .Content
-            .Request()
-            .GetAsync();
-
-        //if the stream is null, there is no picture.
-        if (stream == null) return null!;
-
-        //create image from stream
-        var image = Image.Load(stream, out var format);
-
-        //return base64 image.
-        return image.ToBase64String(format);
+        return graphClient;
     }
 
-    private IConfigurationRoot GetConfiguration()
+    private static IConfigurationRoot GetConfiguration()
     {
         var configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")

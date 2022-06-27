@@ -7,7 +7,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
@@ -17,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Identity.Web;
 using Portfolio.Extensions;
+using Portfolio.Helpers;
 using Portfolio.Models;
 using Portfolio.Services.Interfaces;
 using SixLabors.ImageSharp;
@@ -29,7 +29,6 @@ public class ExternalLoginModel : PageModel
 {
     private readonly IBlogEmailSender _emailSender;
     private readonly IUserEmailStore<BlogUser> _emailStore;
-    private readonly IExternalLogin _externalLoginService;
     private readonly ILogger<ExternalLoginModel> _logger;
     private readonly IRemoteImageService _remoteImageService;
     private readonly SignInManager<BlogUser> _signInManager;
@@ -42,7 +41,6 @@ public class ExternalLoginModel : PageModel
         IUserStore<BlogUser> userStore,
         ILogger<ExternalLoginModel> logger,
         IBlogEmailSender emailSender,
-        IExternalLogin externalLoginService,
         IRemoteImageService remoteImageService)
     {
         _signInManager = signInManager;
@@ -51,7 +49,6 @@ public class ExternalLoginModel : PageModel
         _emailStore = GetEmailStore();
         _logger = logger;
         _emailSender = emailSender;
-        _externalLoginService = externalLoginService;
         _remoteImageService = remoteImageService;
     }
 
@@ -112,9 +109,7 @@ public class ExternalLoginModel : PageModel
             ErrorMessage = "Error loading external login information.";
             return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
         }
-
-        if (info.ProviderDisplayName == "OpenIdConnect") info.ProviderDisplayName = "microsoft";
-
+        
         // Sign in the user with this external login provider if the user already has a login.
         var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false, true);
         if (result.Succeeded)
@@ -137,7 +132,22 @@ public class ExternalLoginModel : PageModel
                 try
                 {
                     var token = info.AuthenticationTokens.FirstOrDefault(t => t.Name == "id_token")!.Value;
-                    base64ProfilePicture = await _externalLoginService.GetMicrosoftGraphPhotoAsync(token);
+
+                    var singleUserGraphClient = await MicrosoftGraph.GetMicrosoftGraphSingleUserClient(token);
+                    
+                    //use Graph client to get stream of photo.
+                    var stream = await singleUserGraphClient.Me.Photos["120x120"]
+                        .Content
+                        .Request()
+                        .GetAsync();
+
+                    if (stream == null) base64ProfilePicture = string.Empty;
+                    
+                    //create image from stream
+                    var image = Image.Load(stream, out var format);
+
+                    //return base64 image.
+                    base64ProfilePicture = image.ToBase64String(format);
                 }
                 catch (Exception)
                 {
@@ -149,10 +159,10 @@ public class ExternalLoginModel : PageModel
             {
                 var profileImageUrl = info.Principal.FindFirstValue("picture");
                 var client = new HttpClient();
-
+            
                 var response = await client.GetAsync(profileImageUrl);
                 var stream = await response.Content.ReadAsStreamAsync();
-
+            
                 var image = Image.Load(stream, out var format);
                 base64ProfilePicture = image.ToBase64String(format);
             }
@@ -161,14 +171,14 @@ public class ExternalLoginModel : PageModel
                 ErrorMessage = "Error loading external login information.";
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
-
+        
             Claims = new ClaimsInputModel
             {
                 FirstName = info.Principal.FindFirstValue(ClaimTypes.GivenName),
                 LastName = info.Principal.FindFirstValue(ClaimTypes.Surname),
                 Base64ProfilePicture = base64ProfilePicture
             };
-
+        
             Input = new InputModel
             {
                 Email = info.Principal.FindFirstValue(ClaimTypes.Email)
@@ -192,35 +202,11 @@ public class ExternalLoginModel : PageModel
         if (ModelState.IsValid)
         {
             var user = CreateUser();
-
-            //Caches profile picture from FE for use on form refresh.
-            var base64ProfilePicture = string.Empty;
-            if (TempData.ContainsKey("Base64ProfilePicture"))
-            {
-                base64ProfilePicture = TempData["Base64ProfilePicture"] as string;
-                Claims.Base64ProfilePicture = base64ProfilePicture;
-            }
-
-            //Serializes the model to Json to be deserialized on FE.
-            var claimsModelJson = JsonSerializer.Serialize(Claims);
-            TempData["ClaimsModel"] = claimsModelJson;
-
-            if (Claims.ProfilePicture.IsImage())
-            {
-                if (user.FileName != null)
-                {
-                    var match = Regex.Match(user.FileName,
-                        @"[{(]?[0-9A-F]{8}[-]?([0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?");
-                    user.FileName = match.Success
-                        ? _remoteImageService.UploadPostImage(Claims.ProfilePicture, match.Value)
-                        : _remoteImageService.UploadPostImage(Claims.ProfilePicture);
-                }
-
-                user.FileName = _remoteImageService.UploadProfileImage(Claims.ProfilePicture);
-            }
-
+            
+            //Populate user
             user.FirstName = Claims.FirstName;
             user.LastName = Claims.LastName;
+            user.base64ProfileImage = Claims.Base64ProfilePicture;
 
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -231,29 +217,49 @@ public class ExternalLoginModel : PageModel
                 result = await _userManager.AddLoginAsync(user, info);
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
+                    if (Claims.ProfilePicture.IsImage())
+                    {
+                        if (user.FileName != null)
+                        {
+                            var match = Regex.Match(user.FileName,
+                                @"[{(]?[0-9A-F]{8}[-]?([0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?");
+                            user.FileName = match.Success
+                                ? _remoteImageService.UploadPostImage(Claims.ProfilePicture, match.Value)
+                                : _remoteImageService.UploadPostImage(Claims.ProfilePicture);
+                        }
 
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        null,
-                        new { area = "Identity", userId, code },
-                        Request.Scheme);
+                        user.FileName = _remoteImageService.UploadProfileImage(Claims.ProfilePicture);
+                    }
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    result = await _userManager.UpdateAsync(user);
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
-                    // If account confirmation is required, we need to show the link if we don't have a real email sender
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                        return RedirectToPage("./RegisterConfirmation", new { Input.Email });
+                        var userId = await _userManager.GetUserIdAsync(user);
+                    
+                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                        var callbackUrl = Url.Page(
+                            "/Account/ConfirmEmail",
+                            null,
+                            new { area = "Identity", userId, code },
+                            Request.Scheme);
 
-                    await _signInManager.SignInAsync(user, false, info.LoginProvider);
-                    return LocalRedirect(returnUrl);
+                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                        // If account confirmation is required, we need to show the link if we don't have a real email sender
+                        if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                            return RedirectToPage("./RegisterConfirmation", new { Input.Email });
+
+                        await _signInManager.SignInAsync(user, false, info.LoginProvider);
+                        return LocalRedirect(returnUrl); 
+                    }
                 }
             }
 
+            ReturnUrl = returnUrl;
             foreach (var error in result.Errors) ModelState.AddModelError(string.Empty, error.Description);
         }
 

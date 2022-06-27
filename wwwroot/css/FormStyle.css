@@ -118,11 +118,6 @@
     border-radius: 0;
 }
 
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-    color: #fff;
-    background-color: #f43e71;
-}
-
 .nav-link, .nav-link:focus, .nav-link:hover {
     color: black;
     text-decoration: none;

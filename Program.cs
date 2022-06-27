@@ -6,8 +6,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.Graph;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.OpenApi.Extensions;
 using Microsoft.OpenApi.Models;
 using Portfolio.Data;
 using Portfolio.Extensions;
@@ -15,6 +18,7 @@ using Portfolio.Models;
 using Portfolio.Services;
 using Portfolio.Services.Interfaces;
 using Portfolio.ViewModels;
+using WebApplication = Microsoft.AspNetCore.Builder.WebApplication;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = new ConfigurationBuilder()
@@ -47,7 +51,7 @@ builder.Services.AddAuthentication()
 
 builder.Services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme, options =>
 {
-    options.Authority = "https://login.microsoftonline.com/common/v2.0/";
+    options.Authority = "https://login.microsoftonline.com/consumers/v2.0/";
     options.ClientId = configuration.GetSection("AzureAd").GetSection("ClientId").Value;
     options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
     options.CallbackPath = configuration.GetSection("AzureAd").GetSection("CallBackPath").Value;
@@ -60,6 +64,18 @@ builder.Services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.Authentic
     options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "sub");
     options.ClientSecret = configuration.GetSection("AzureAd").GetSection("ClientSecret").Value;
     options.SignInScheme = IdentityConstants.ExternalScheme;
+});
+
+//Change the display name of scheme
+builder.Services.PostConfigure<AuthenticationOptions>(options =>
+{
+    foreach (var scheme in options.Schemes)
+    {
+        if (scheme.Name == OpenIdConnectDefaults.AuthenticationScheme)
+        {
+            scheme.DisplayName = "Microsoft";
+        }
+    }
 });
 
 //Add Google Authentication
@@ -102,9 +118,6 @@ builder.Services.AddScoped<IValidate, ValidateService>();
 
 //Register Avatar Service
 builder.Services.AddScoped<INoAvatarService, BasicAvatarService>();
-
-//Register External Login Service
-builder.Services.AddScoped<IExternalLogin, BasicExternalLoginService>();
 
 //Register Swagger Implementation
 builder.Services.AddSwaggerGen(options =>
