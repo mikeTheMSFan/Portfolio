@@ -22,7 +22,7 @@ public class EmailService : IBlogEmailSender
         var email = new MimeMessage
         {
             Sender = MailboxAddress.Parse(_settingsViewModel.Mail),
-            To = { MailboxAddress.Parse("bigmike2238@yahoo.com") },
+            To = { MailboxAddress.Parse(emailTo) },
             From = { MailboxAddress.Parse("noreply@mikemrobinsondev.com") },
             Subject = subject
         };

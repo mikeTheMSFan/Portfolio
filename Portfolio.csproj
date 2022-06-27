@@ -32,8 +32,9 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Microsoft.Graph" Version="4.32.0" />
         <PackageReference Include="Microsoft.Identity.Web" Version="1.25.1" />
-        <PackageReference Include="Microsoft.Identity.Web.MicrosoftGraphBeta" Version="1.25.1" />
+        <PackageReference Include="Microsoft.Identity.Web.MicrosoftGraph" Version="1.25.1" />
         <PackageReference Include="Microsoft.Identity.Web.UI" Version="1.25.1" />
         <PackageReference Include="MimeKit" Version="3.3.0" />
         <PackageReference Include="NsfwSpy" Version="3.4.2" />

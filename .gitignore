@@ -236,6 +236,7 @@ _Pvt_Extensions
 
 # JetBrains Rider's auto generated files
 .idea/
+Properties/launchSettings.json
 
 #Appsettings
 appsettings.json
