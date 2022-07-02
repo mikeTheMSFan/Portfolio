@@ -149,9 +149,20 @@ public class ProjectsController : Controller
             if (thereAreModelErrors) return View(project);
 
             //update image if necessary.
-            if (newProject.Image != null && !string.IsNullOrEmpty(newProject.FileName))
+            if (newProject.Image == null)
+            {
+                //do nothing...
+            }
+            
+            else if (newProject.Image != null && string.IsNullOrEmpty(newProject.FileName) == false)
+            {
                 newProject = (_remoteImageService.UpdateImage(newProject, newProject.Image) as Project)!;
-            else newProject.FileName = _remoteImageService.UploadProjectImage(newProject.Image!);
+            }
+
+            else
+            {
+                newProject.FileName = _remoteImageService.UploadProjectImage(newProject.Image!);
+            }
 
             //add entity to be updated in the db.
             _context.Update(newProject);
