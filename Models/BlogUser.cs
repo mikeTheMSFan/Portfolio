@@ -52,6 +52,8 @@ public sealed class BlogUser : IdentityUser
         MinimumLength = 2)]
     public string TwitterUrl { get; set; } = "";
 
+    public bool UserAcceptedTerms { get; set; } = default!; 
+
     //First and last name
     [NotMapped] [JsonIgnore] public string FullName => $"{FirstName} {LastName}";
 

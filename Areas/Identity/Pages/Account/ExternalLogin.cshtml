@@ -26,9 +26,12 @@
                 <div class="form-floating">
                     <input asp-for="Input.Email" class="form-control" autocomplete="email"/>
                     <label asp-for="Input.Email" class="form-label"></label>
-                    <input asp-for="Claims.FirstName" class="form-control" autocomplete="FirstName" hidden/>
-                    <input asp-for="Claims.LastName" class="form-control" autocomplete="LastName" hidden/>
-                    <input asp-for="Claims.Base64ProfilePicture" class="form-control" hidden/>
+                </div>
+                <div class="form-floating">
+                    <input asp-for="Claims.UserAcceptedTerms"/>
+                    <label class="form-label">I accept the terms of this site's <a asp-action="Privacy" asp-controller="Home" target="_blank">Privacy Policy</a></label>
+                </div>
+                <div class="form-floating">
                     @if (string.IsNullOrEmpty(@Model.Claims.Base64ProfilePicture))
                     {
                         <div class="profileBlock">
@@ -43,6 +46,11 @@
                         </div>
                     }
                     <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+                <div class="form-floating">
+                    <input asp-for="Claims.FirstName" class="form-control" autocomplete="FirstName" hidden/>
+                    <input asp-for="Claims.LastName" class="form-control" autocomplete="LastName" hidden/>
+                    <input asp-for="Claims.Base64ProfilePicture" class="form-control" hidden/>
                 </div>
                 <button type="submit" class="w-100 btn btn-lg default-btn">Register</button>
             </form>

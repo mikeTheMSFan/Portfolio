@@ -78,6 +78,20 @@ public class RegisterModel : PageModel
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
             user.FirstName = Input.FirstName;
             user.LastName = Input.LastName;
+            user.UserAcceptedTerms = Input.UserAcceptedTerms;
+            
+            var validationError = false;
+            if (Input.UserAcceptedTerms == false)
+            {
+                validationError = true;
+                ModelState.AddModelError("Input.UserAcceptedTerms", "You must accept the terms of our privacy policy to register.");
+            }
+
+            if (validationError == true)
+            {
+                ReturnUrl = returnUrl;
+                return Page();
+            }
 
             if (Input.Image == null)
             {
@@ -197,5 +211,7 @@ public class RegisterModel : PageModel
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+        
+        public bool UserAcceptedTerms { get; set; }
     }
 }

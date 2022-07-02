@@ -63,10 +63,11 @@ public class RegisterConfirmationModel : PageModel
             null,
             new { userId, code },
             Request.Scheme);
+        
         await _emailSender.SendEmailAsync(
             Email,
             "Confirm your email",
-            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl!)}'>clicking here</a>.");
 
         return Page();
     }

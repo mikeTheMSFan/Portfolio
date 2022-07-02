@@ -27,7 +27,6 @@ namespace Portfolio.Areas.Identity.Pages.Account;
 [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
 public class ExternalLoginModel : PageModel
 {
-    private readonly IBlogEmailSender _emailSender;
     private readonly IUserEmailStore<BlogUser> _emailStore;
     private readonly ILogger<ExternalLoginModel> _logger;
     private readonly IRemoteImageService _remoteImageService;
@@ -48,7 +47,6 @@ public class ExternalLoginModel : PageModel
         _userStore = userStore;
         _emailStore = GetEmailStore();
         _logger = logger;
-        _emailSender = emailSender;
         _remoteImageService = remoteImageService;
     }
 
@@ -59,7 +57,8 @@ public class ExternalLoginModel : PageModel
     [BindProperty]
     public InputModel Input { get; set; }
 
-    [BindProperty] public ClaimsInputModel Claims { get; set; }
+    [BindProperty] 
+    public ClaimsInputModel Claims { get; set; }
 
     /// <summary>
     ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -132,7 +131,6 @@ public class ExternalLoginModel : PageModel
                 try
                 {
                     var token = info.AuthenticationTokens.FirstOrDefault(t => t.Name == "id_token")!.Value;
-
                     var singleUserGraphClient = await MicrosoftGraph.GetMicrosoftGraphSingleUserClient(token);
                     
                     //use Graph client to get stream of photo.
@@ -207,6 +205,20 @@ public class ExternalLoginModel : PageModel
             user.FirstName = Claims.FirstName;
             user.LastName = Claims.LastName;
             user.base64ProfileImage = Claims.Base64ProfilePicture;
+            user.UserAcceptedTerms = Claims.UserAcceptedTerms;
+
+            var validationError = false;
+            if (user.UserAcceptedTerms == false)
+            {
+                validationError = true;
+                ModelState.AddModelError(string.Empty, "You must accept the terms of our privacy policy to register.");
+            }
+
+            if (validationError == true)
+            {
+                ReturnUrl = returnUrl;
+                return Page();
+            }
 
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -245,9 +257,6 @@ public class ExternalLoginModel : PageModel
                             null,
                             new { area = "Identity", userId, code },
                             Request.Scheme);
-
-                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
                         // If account confirmation is required, we need to show the link if we don't have a real email sender
                         if (_userManager.Options.SignIn.RequireConfirmedAccount)
@@ -309,6 +318,8 @@ public class ExternalLoginModel : PageModel
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Base64ProfilePicture { get; set; }
+        
+        public bool UserAcceptedTerms { get; set; }
 
         [JsonIgnore] public IFormFile ProfilePicture { get; set; }
     }

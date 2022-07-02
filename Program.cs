@@ -51,7 +51,7 @@ builder.Services.AddAuthentication()
 
 builder.Services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme, options =>
 {
-    options.Authority = "https://login.microsoftonline.com/consumers/v2.0/";
+    options.Authority = "https://login.microsoftonline.com/common/v2.0/";
     options.ClientId = configuration.GetSection("AzureAd").GetSection("ClientId").Value;
     options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
     options.CallbackPath = configuration.GetSection("AzureAd").GetSection("CallBackPath").Value;
