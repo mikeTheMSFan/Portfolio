@@ -1,0 +1,340 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|Raleway:300,400,500,600,700,800');
+/*=======================================================================
+
+Template Name: 404 Page | Responsive HTML5 Template
+Template URI: https://psdboss.com/
+Description: 404 Page | 404 Page Responsive HTML5 Template.
+Author: PSD Boss
+Author URI: https://psdboss.com/
+Version: 1.0
+
+/*=======================================================================
+[Table of content]
+=========================================================================
+
+[01] Typography
+[02] General
+[03] Error Demo 1 Area
+[04] Error Demo 2 Area
+[05] Error Demo 3 Area
+[06] Error Demo 4 Area
+
+
+=========================================================================
+[ End table of content ]
+=========================================================================*//*=======================================================================
+[01] Typography
+=========================================================================*/
+html,
+body {
+  height: 100%;
+  font-family: 'Raleway', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  vertical-align: baseline;
+  background: #ffffff;
+  color: #444444;
+}
+body {
+  font-size: 15px;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Open+Sans', sans-serif;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  color: #212121;
+}
+h1 {
+  font-size: 56px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+p {
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+}
+/*=======================================================================
+[02] General
+=========================================================================*/
+a {
+  text-decoration: none;
+}
+a:active,
+a:hover,
+a:focus {
+  text-decoration: none;
+}
+a:active,
+a:hover,
+a:focus {
+  outline: 0 none;
+}
+img {
+  max-width: 100%;
+  height: auto;
+}
+.clear:after {
+  clear: both;
+  content: "";
+  display: block;
+}
+#wrapper {
+  height: 100%;
+  overflow: hidden;
+  -webkit-transition: all 0.5s ease-out;
+  -moz-transition: all 0.5s ease-out;
+  -ms-transition: all 0.5s ease-out;
+  -o-transition: all 0.5s ease-out;
+  transition: all 0.5s ease-out;
+}
+.error-btn-1 {
+  border: 2px solid #ffffff;
+  display: inline-block;
+  background: #37474f;
+  border-radius: 45px;
+  color: #ffffff;
+  padding: 20px 50px;
+  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: 600;
+  -webkit-transition: all 0.5s ease-out;
+  -moz-transition: all 0.5s ease-out;
+  -ms-transition: all 0.5s ease-out;
+  -o-transition: all 0.5s ease-out;
+  transition: all 0.5s ease-out;
+}
+.error-btn-1:hover {
+  color: #ffffff;
+  background: transparent;
+}
+.error-btn-2 {
+  border: 2px solid #fecf42;
+  display: inline-block;
+  background: #fecf42;
+  border-radius: 45px;
+  color: #ffffff;
+  padding: 20px 50px;
+  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: 600;
+  -moz-box-shadow: inset 0 -1px 1px #60448e, 0 5px 0 #60448e, 0 6px 8px rgba(0, 0, 0, 0.35);
+  -webkit-box-shadow: inset 0 -1px 1px #60448e, 0 5px 0 #60448e, 0 6px 8px rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 -1px 1px #60448e, 0 5px 0 #60448e, 0 6px 8px rgba(0, 0, 0, 0.35);
+  -webkit-transition: all 0.5s ease-out;
+  -moz-transition: all 0.5s ease-out;
+  -ms-transition: all 0.5s ease-out;
+  -o-transition: all 0.5s ease-out;
+  transition: all 0.5s ease-out;
+}
+.error-btn-2:hover {
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  background: transparent;
+}
+.error-btn-3 {
+  -webkit-transform: rotate(-5deg);
+  -ff-transform: rotate(-5deg);
+  transform: rotate(-5deg);
+  position: absolute;
+  color: #ffffff;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 20px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  top: 14%;
+  z-index: 1;
+  text-align: center;
+  -webkit-transition: all 0.5s ease-out;
+  -moz-transition: all 0.5s ease-out;
+  -ms-transition: all 0.5s ease-out;
+  -o-transition: all 0.5s ease-out;
+  transition: all 0.5s ease-out;
+}
+.error-btn-3:hover {
+  color: #469F4B;
+}
+.error-btn-4 {
+  display: inline-block;
+  background: #ffffff;
+  border-radius: 45px;
+  color: #212121;
+  padding: 20px 50px;
+  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: 600;
+  -moz-box-shadow: inset 0 -1px 1px #b33022, 0 5px 0 #bf3425, 0 6px 8px rgba(0, 0, 0, 0.35);
+  -webkit-box-shadow: inset 0 -1px 1px #b33022, 0 5px 0 #bf3425, 0 6px 8px rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 -1px 1px #b33022, 0 5px 0 #bf3425, 0 6px 8px rgba(0, 0, 0, 0.35);
+  -webkit-transition: all 0.5s ease-out;
+  -moz-transition: all 0.5s ease-out;
+  -ms-transition: all 0.5s ease-out;
+  -o-transition: all 0.5s ease-out;
+  transition: all 0.5s ease-out;
+}
+.error-btn-4:hover {
+  color: #e14938;
+}
+.section-space {
+  padding: 200px 0;
+}
+@media (min-width: 992px) and (max-width: 1199px) {
+  .section-space {
+    padding: 150px 0;
+  }
+}
+@media (min-width: 768px) and (max-width: 991px) {
+  .section-space {
+    padding: 100px 0;
+  }
+}
+@media (min-width: 480px) and (max-width: 767px) {
+  .section-space {
+    padding: 60px 0;
+  }
+}
+@media (min-width: 321px) and (max-width: 479px) {
+  .section-space {
+    padding: 40px 0;
+  }
+}
+@media only screen and (max-width: 320px) {
+  .section-space {
+    padding: 20px 0;
+  }
+}
+/*=======================================================================
+[05] Blog Error Area
+=========================================================================*/
+.error-blog-page {
+  height: 100%;
+  padding-top: 50px;
+  position: relative;
+  background: #e3eef3;
+}
+.error-blog-page .cloud1-img {
+  position: absolute;
+  top: 5%;
+  left: 10%;
+}
+.error-blog-page .cloud2-img {
+  position: absolute;
+  top: 10%;
+  left: 30%;
+}
+.error-blog-page .bird-img1 {
+  position: absolute;
+  top: 30%;
+  left: 20%;
+}
+.error-blog-page .cloud3-img {
+  position: absolute;
+  top: 5%;
+  right: 10%;
+}
+.error-blog-page .cloud4-img {
+  position: absolute;
+  top: 10%;
+  right: 30%;
+}
+.error-blog-page .bird-img2 {
+  position: absolute;
+  top: 30%;
+  right: 20%;
+}
+.error-blog-page .error-top-wrapper {
+  padding: 0 30px;
+  text-align: center;
+}
+.error-blog-page .error-top-wrapper img {
+  margin: 0 auto;
+}
+.error-blog-page .error-bottom-wrapper {
+  margin-top: 50px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+.error-blog-page .error-bottom-wrapper p {
+  font-size: 36px;
+  text-transform: capitalize;
+}
+@media (min-width: 992px) and (max-width: 1199px) {
+  .error-blog-page .error-bottom-wrapper p {
+    font-size: 32px;
+  }
+}
+@media (min-width: 768px) and (max-width: 991px) {
+  .error-blog-page .error-bottom-wrapper p {
+    font-size: 30px;
+  }
+}
+@media (min-width: 480px) and (max-width: 767px) {
+  .error-blog-page .error-bottom-wrapper p {
+    font-size: 26px;
+  }
+}
+@media (min-width: 321px) and (max-width: 479px) {
+  .error-blog-page .error-bottom-wrapper p {
+    font-size: 22px;
+  }
+}
+@media only screen and (max-width: 320px) {
+  .error-blog-page .error-bottom-wrapper p {
+    font-size: 20px;
+  }
+}
+.error-blog-page .error-bottom-bg {
+  position: absolute;
+  bottom: 0;
+}
+@media only screen and (max-width: 1199px) {
+  .error-blog-page .error-bottom-bg {
+    margin-top: 40px;
+    text-align: center;
+  }
+}
+.error-blog-page .error-bottom-bg img {
+  width: 100%;
+}
+@media only screen and (max-width: 1199px) {
+  .error-blog-page .error-bottom-bg a {
+    top: -50px;
+    transform: inherit;
+    border: 2px solid #469f4b;
+    color: #469f4b;
+    display: inline-block;
+    padding: 12px 40px;
+    background: transparent;
+    position: relative;
+    border-radius: 45px;
+  }
+  .error-blog-page .error-bottom-bg a:hover {
+    background: #469f4b;
+    color: #ffffff;
+  }
+}
+@media (min-width: 480px) and (max-width: 767px) {
+  .error-blog-page .error-bottom-bg a {
+    font-size: 18px;
+  }
+}
+@media (min-width: 321px) and (max-width: 479px) {
+  .error-blog-page .error-bottom-bg a {
+    font-size: 17px;
+  }
+}
+@media only screen and (max-width: 320px) {
+  .error-blog-page .error-bottom-bg a {
+    font-size: 16px;
+  }
+}
