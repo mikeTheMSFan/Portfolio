@@ -375,7 +375,8 @@ public class PostsController : Controller
         //store data to be returned to the view.
         ViewData["TagValue"] = tagValue;
 
-        ViewData["RecentArticles"] = _context.Posts.OrderByDescending(p => p.Created).ToList();
+        ViewData["RecentArticles"] = _context.Posts.OrderByDescending(p => p.Created)
+            .Where(p => p.ReadyStatus == ReadyStatus.ProductionReady).ToList();
 
         ViewData["tags"] = tags;
 
@@ -471,7 +472,8 @@ public class PostsController : Controller
             .Include(p => p.BlogUser)
             .Include(p => p.Tags)
             .Include(p => p.Category)
-            .Where(p => p.Tags.Any(t => t.Text.ToLower() == tagValue.ToLower())).ToPagedList(pageNumber, pageSize);
+            .Where(p => p.Tags.Any(t => t.Text.ToLower() == tagValue.ToLower()) 
+                        && p.ReadyStatus == ReadyStatus.ProductionReady).ToPagedList(pageNumber, pageSize);
 
         return posts;
     }

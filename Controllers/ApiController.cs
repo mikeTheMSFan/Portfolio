@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Portfolio.Data;
+using Portfolio.Enums;
 using Portfolio.Models;
 
 namespace Portfolio.Controllers;
@@ -86,7 +87,7 @@ public class ApiController : Controller
         var output = _context.Posts
             .Include(p => p.BlogUser)
             .Include(p => p.Category)
-            .Where(p => p.BlogId == blogId)
+            .Where(p => p.BlogId == blogId && p.ReadyStatus == ReadyStatus.ProductionReady)
             .OrderByDescending(p => p.Created).Take(3);
 
         //If there are no post, return a new list of post in json form.

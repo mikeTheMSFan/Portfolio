@@ -143,6 +143,16 @@ builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
+app.Use(async (context, next) =>
+{
+    await next();
+    if (context.Response.StatusCode == 404)
+    {
+        context.Request.Path = "/EndUserErrors/NotFoundError";
+        await next();
+    }
+});
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

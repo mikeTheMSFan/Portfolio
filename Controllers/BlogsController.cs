@@ -258,6 +258,16 @@ public class BlogsController : Controller
     [Route("blog/{slug}/page/{page}")]
     public async Task<IActionResult> DisplayArticles(string slug, int? page)
     {
+        //check for production ready articles.
+        var productionReadyArticles = _context.Blogs
+            .Include(b => b.Posts)
+            .FirstOrDefault(b => b.Slug == slug)!.Posts
+            .Where(p => p.ReadyStatus == ReadyStatus.ProductionReady)!
+            .Count();
+        
+        //if there is no log or production ready articles, return 404 error.
+        if (string.IsNullOrEmpty(slug) || productionReadyArticles < 1) return NotFound();
+        
         //if the page number is null, start on page one.
         var pageNumber = page ?? 1;
 
@@ -325,10 +335,7 @@ public class BlogsController : Controller
             var categoryPosts = await GetCategoryPostsAsync(category.Id, categoryName, pageNumber, pageSize);
 
             //Take the appropriate action depending on what posts are found.
-            var thereArePosts = await CheckForCategoryPosts(blog, categoryPosts, pageNumber, pageSize);
-
-            //if no posts are found, return a 404 error.
-            if (thereArePosts == false) return NotFound();
+            await CheckForCategoryPosts(blog, categoryPosts, pageNumber, pageSize);
 
             //store data to be returned to the view.
             ViewData["tags"] = tags;
@@ -514,16 +521,13 @@ public class BlogsController : Controller
         return _context.Blogs.Any(e => e.Id == id);
     }
 
-    private async Task<bool> CheckForCategoryPosts(Blog blog, IPagedList<Post> categoryPosts, int pageNumber,
+    private async Task CheckForCategoryPosts(Blog blog, IPagedList<Post> categoryPosts, int pageNumber,
         int pageSize)
     {
-        if (categoryPosts.Any() == false)
+        if (categoryPosts.All(p => p.ReadyStatus != ReadyStatus.ProductionReady))
         {
             await GetNoCategoryBlogPostsAsync(blog, pageNumber, pageSize);
-            return true;
         }
-
-        return false;
     }
 
     private bool CheckForModelErrors(Tuple<List<Tuple<string, string, Blog>>> result, List<string> categoryValues)
@@ -560,6 +564,7 @@ public class BlogsController : Controller
         var blogs = await _context.Blogs
             .Include(b => b.Author)
             .OrderByDescending(b => b.Created)
+            .Where(b => b.Posts.All(p => p.ReadyStatus == ReadyStatus.ProductionReady))
             .ToPagedListAsync(pageNumber, pageSize);
 
         return blogs;
@@ -662,7 +667,8 @@ public class BlogsController : Controller
         else
             categoryPosts = await _context.Posts
                 .Include(p => p.BlogUser)
-                .Where(p => p.CategoryId == id)
+                .Where(p => p.CategoryId == id &&
+                            p.ReadyStatus == ReadyStatus.ProductionReady)
                 .OrderByDescending(p => p.Created).ToListAsync();
 
         return await categoryPosts.ToPagedListAsync(pageNumber, pageSize);
@@ -685,9 +691,10 @@ public class BlogsController : Controller
             "No articles were found for this category, instead here is a list of posts by the user.";
 
         ViewData["posts"] = await blog.Posts.OrderByDescending(p => p.Created)
+            .Where(p => p.ReadyStatus == ReadyStatus.ProductionReady)
             .ToPagedListAsync(pageNumber, pageSize);
-        ViewData["action"] = "DisplayArticles";
 
+        ViewData["action"] = "DisplayArticles";
         TempData["StatusMessage"] = message;
     }
 

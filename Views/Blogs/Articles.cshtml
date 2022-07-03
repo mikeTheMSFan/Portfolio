@@ -2,6 +2,7 @@
 @using X.PagedList.Web.Common
 @using Portfolio.Services.Interfaces
 @using X.PagedList
+@using Portfolio.Enums
 @model Blog;
 @{
     ViewData["Title"] = "Mike Robinson's Site - Articles";
@@ -120,9 +121,9 @@
                         <!-- ./widget-content -->
                     }
                     <div class="widget-content">
-                        <h3>Recent DisplayArticles</h3>
+                        <h3>Recent Articles</h3>
                         <ul class="thumb-post">
-                            @if (Model.Posts.Any())
+                            @if (Model.Posts.All(p => p.ReadyStatus == ReadyStatus.ProductionReady))
                             {
                                 @foreach (var article in Model.Posts
                                     .OrderByDescending(p => p.Created)
