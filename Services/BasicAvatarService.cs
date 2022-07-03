@@ -1,4 +1,5 @@
-﻿using Portfolio.Services.Interfaces;
+﻿using System.Runtime.InteropServices;
+using Portfolio.Services.Interfaces;
 using SixLabors.ImageSharp;
 
 namespace Portfolio.Services;
@@ -18,7 +19,9 @@ public class BasicAvatarService : INoAvatarService
         var serverRoot = HostEnvironment.WebRootPath;
 
         //create avatar path
-        var avatarPath = Path.Combine(serverRoot, @"imgs\avatars");
+        var avatarPath = (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            ? Path.Combine(serverRoot, @"imgs\avatars")
+            : Path.Combine(serverRoot, @"imgs/avatars");
 
         //get new instance of directory info using avatar path.
         var d = new DirectoryInfo(avatarPath);

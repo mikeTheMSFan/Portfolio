@@ -1,5 +1,8 @@
 ﻿using System.Diagnostics;
+using AspNetCore.ReCaptcha;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Portfolio.Data;
 using Portfolio.Models;
 using Portfolio.Services.Interfaces;
@@ -44,12 +47,21 @@ public class HomeController : Controller
         return View();
     }
 
+    [ValidateReCaptcha]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Contact([FromForm] ContactViewModel model)
     {
         try
         {
+            if (ModelState.IsValid == false &&
+                ModelState.ContainsKey("Recaptcha") &&
+                ModelState["Recaptcha"]!.ValidationState == ModelValidationState.Invalid)
+            {
+                ModelState.AddModelError(string.Empty, "reCaptcha Error.");
+                return View(model);
+            }
+            
             //set body of contact email.
             model.Body =
                 $"<p>New Message From User ✅✅✅</p><p>Email:{model.Email}</p><p>Phone Number: {model.PhoneNumber}</p>Body:</p><p>{model.Body}</p>";
@@ -57,12 +69,11 @@ public class HomeController : Controller
             //send contact email.
             await _emailSender.SendContactEmailAsync(model.Email, model.Name, model.Subject, model.Body);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             //let the user know there was an error.
-            StatusMessage =
-                "Error: There was an error sending the message, if this persists please let the administrator know.";
-            return RedirectToAction("Index");
+           ModelState.AddModelError("", $"There was an error, please try again. {ex.Message}");
+           return View(model);
         }
 
         //let the user know the message was sent.

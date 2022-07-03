@@ -1,16 +1,12 @@
 using System.Reflection;
 using System.Security.Claims;
-using Azure.Identity;
-using Azure.Security.KeyVault.Certificates;
+using AspNetCore.ReCaptcha;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.Graph;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.OpenApi.Extensions;
 using Microsoft.OpenApi.Models;
 using Portfolio.Data;
 using Portfolio.Extensions;
@@ -140,6 +136,9 @@ builder.Services.AddSwaggerGen(options =>
 
 //Register HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
+
+//Set recaptcha configuration
+builder.Services.AddReCaptcha(configuration.GetSection("ReCaptcha"));
 
 var app = builder.Build();
 

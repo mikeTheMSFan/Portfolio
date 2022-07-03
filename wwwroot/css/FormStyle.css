@@ -122,3 +122,21 @@
     color: black;
     text-decoration: none;
 }
+
+.form-section .form-no-shadow {
+    background-color: #fff;
+    padding: 0;
+    margin-top: 0;
+}
+
+.form-section .form-login-form {
+    background-color: #fff;
+    padding: 50px 50px 5px 50px;
+    margin-top: 0px;
+    box-shadow: 0px 20px 30px 5px rgb(61 1 4 / 10%);
+}
+
+.center {
+    margin: auto;
+    padding: 0 0 10px 0;
+}

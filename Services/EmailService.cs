@@ -51,9 +51,8 @@ public class EmailService : IBlogEmailSender
         {
             Sender = MailboxAddress.Parse(_settingsViewModel.Mail),
             To = { MailboxAddress.Parse("bigmike2238@yahoo.com") },
-            From = { MailboxAddress.Parse(emailFrom) },
-            Subject = subject,
-            Date = DateTime.Now
+            From = { MailboxAddress.Parse("noreply@mikemrobinsondev.com") },
+            Subject = subject
         };
 
         //define email body using passed in HTML string.

@@ -5,9 +5,11 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using AspNetCore.ReCaptcha;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Portfolio.Extensions;
@@ -16,6 +18,7 @@ using Portfolio.Services.Interfaces;
 
 namespace Portfolio.Areas.Identity.Pages.Account;
 
+[ValidateReCaptcha]
 public class RegisterModel : PageModel
 {
     private readonly IUserEmailStore<BlogUser> _emailStore;
@@ -72,6 +75,15 @@ public class RegisterModel : PageModel
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         if (ModelState.IsValid)
         {
+            if (ModelState.IsValid == false &&
+                ModelState.ContainsKey("Recaptcha") &&
+                ModelState["Recaptcha"]!.ValidationState == ModelValidationState.Invalid)
+            {
+                ModelState.AddModelError(string.Empty, "reCaptcha Error.");
+                ReturnUrl = returnUrl;
+                return Page();
+            }
+            
             var user = CreateUser();
 
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);

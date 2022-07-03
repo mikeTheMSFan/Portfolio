@@ -4,14 +4,17 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
+using AspNetCore.ReCaptcha;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Portfolio.Models;
 
 namespace Portfolio.Areas.Identity.Pages.Account;
 
+[ValidateReCaptcha]
 public class LoginModel : PageModel
 {
     private readonly ILogger<LoginModel> _logger;
@@ -62,10 +65,19 @@ public class LoginModel : PageModel
 
         ReturnUrl = returnUrl;
     }
-
+    
     public async Task<IActionResult> OnPostAsync(string returnUrl = null)
     {
         returnUrl ??= Url.Content("~/");
+        
+        if (ModelState.IsValid == false &&
+            ModelState.ContainsKey("Recaptcha") &&
+            ModelState["Recaptcha"]!.ValidationState == ModelValidationState.Invalid)
+        {
+            ModelState.AddModelError(string.Empty, "reCaptcha Error.");
+            ReturnUrl = returnUrl;
+            return Page();
+        }
 
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
@@ -74,6 +86,7 @@ public class LoginModel : PageModel
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, set lockoutOnFailure: true
             var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, false);
+            
             if (result.Succeeded)
             {
                 _logger.LogInformation("User logged in.");

@@ -1,4 +1,5 @@
-﻿@model ContactViewModel
+﻿@using AspNetCore.ReCaptcha
+@model ContactViewModel
 @{
     ViewData["Title"] = "Mike Robinson's Site - Contact Me";
 }
@@ -7,7 +8,6 @@
     <iframe src="https://maps.google.com/maps?q=Litchfield,%20CT&t=&z=13&ie=UTF8&iwloc=&output=embed"
             width="100%"
             height="400"
-            frameborder="0"
             style="border: 0"
             allowfullscreen="">
     </iframe>
@@ -47,6 +47,11 @@
                     <form asp-action="Contact">
                         <div class="form-group column-row row">
                             <div class="col-sm-12 sm-padding">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            </div>
+                        </div>
+                        <div class="form-group column-row row">
+                            <div class="col-sm-12 sm-padding">
                                 <input asp-for="Name" class="form-control" placeholder="Name"/>
                                 <span asp-validation-for="Name" class="text-danger"></span>
                             </div>
@@ -71,6 +76,11 @@
                             <div class="col-md-12">
                                 <textarea asp-for="Body" class="form-control" placeholder="Body"></textarea>
                                 <span asp-validation-for="Body" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-12 my-2">
+                                <recaptcha />
                             </div>
                         </div>
                         <button id="submit" class="default-btn" type="submit">

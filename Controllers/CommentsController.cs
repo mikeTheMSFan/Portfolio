@@ -1,7 +1,9 @@
 #nullable disable
+using AspNetCore.ReCaptcha;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Portfolio.Data;
 using Portfolio.Extensions;
@@ -56,11 +58,21 @@ public class CommentsController : Controller
     // POST: Comments/Create
     // To protect from overposting attacks, enable the specific properties you want to bind to.
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    [ValidateReCaptcha]
     [HttpPost]
     [Authorize]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([FromForm] PostViewModel postViewModel, string slug)
     {
+        if (ModelState.IsValid == false &&
+            ModelState.ContainsKey("Recaptcha") &&
+            ModelState["Recaptcha"]!.ValidationState == ModelValidationState.Invalid)
+        {
+            StatusMessage =
+                "Error: reCaptcha error.";
+            return RedirectToAction("Details", "Posts", new { slug });
+        }
+        
         if (ModelState.IsValid)
         {
             if (postViewModel.Comment != null)
