@@ -106,8 +106,7 @@ public class BlogsController : Controller
             if (thereAreModelErrors) return View(blog);
 
             //set create date for blog
-            blog.Created = DateTime.Now.SetKindUtc();
-            ;
+            blog.Created = DateTime.Now.SetKindUtc(); ;
 
             //set author id for blog
             blog.AuthorId = _userManager.GetUserId(User);
@@ -166,12 +165,18 @@ public class BlogsController : Controller
     {
         //if string is empty let the use know the request was bad.
         if (string.IsNullOrEmpty(name)) return BadRequest();
-
+        
         //get the category based on the passed in name.
         var category = await GetCategoryByNameAsync(name);
-
+        
         //if there is no result, return a 404 error.
         if (category == null) return NotFound();
+        
+        //if category is all posts, return user to edit page.
+        if (category.Name.ToLower() == "all posts")
+        {
+            return RedirectToAction("Edit", new { id = category.BlogId });
+        }
 
         //return found category to the default view.
         return View(category);
@@ -183,26 +188,25 @@ public class BlogsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteCategoryConfirm(Guid id)
     {
-        //if the category is not found, return a 404 error.
-        if (CategoryExists(id) == false) return NotFound();
-
-        //get category by passed in id.
-        var category = await GetCategoryByIdAsync(id);
-        ;
-
-        //get posts that need to be transferred to the 'all posts' category.
-        var postsToChange = await _context.Posts
-            .Where(p => p.Category == category && p.ReadyStatus == ReadyStatus.ProductionReady).ToListAsync();
-
-        //move posts to the 'all posts' category.
-        MovePostsToDefaultCategory(postsToChange);
-
         //if the blog id is not present, return 404 error.
         if (TempData["CurrentBlogId"] == null) return NotFound();
 
         //assign the applicable blog id to a variable for routing.
         var rootBlogId = (Guid)TempData["CurrentBlogId"];
+        
+        //if the category is not found, return a 404 error.
+        if (CategoryExists(id) == false) return NotFound();
 
+        //get category by passed in id.
+        var category = await GetCategoryByIdAsync(id);
+
+        //get posts that need to be transferred to the 'all posts' category.
+        var postsToChange = await _context.Posts
+            .Where(p => p.Category == category).ToListAsync();
+
+        //move posts to the 'all posts' category.
+        MovePostsToDefaultCategory(postsToChange);
+        
         //add entity to the list of db actions that need to be executed.
         _context.Remove(category);
 
@@ -222,7 +226,7 @@ public class BlogsController : Controller
     {
         //if the blog doesn't exist, return a 404 error.
         if (BlogExists(id) == false) return NotFound();
-
+        
         //get the blog to be deleted.
         var blog = await _context.Blogs.FindAsync(id);
 
@@ -230,7 +234,7 @@ public class BlogsController : Controller
         DeleteBlogImage(blog);
 
         //add entity to the list of db actions that need to be executed.
-        _context.Blogs.Remove(blog);
+        _context.Blogs.Remove(blog!);
 
         //execute db actions.
         await _context.SaveChangesAsync();
@@ -264,10 +268,10 @@ public class BlogsController : Controller
             .FirstOrDefault(b => b.Slug == slug)!.Posts
             .Where(p => p.ReadyStatus == ReadyStatus.ProductionReady)!
             .Count();
-        
+
         //if there is no log or production ready articles, return 404 error.
         if (string.IsNullOrEmpty(slug) || productionReadyArticles < 1) return NotFound();
-        
+
         //if the page number is null, start on page one.
         var pageNumber = page ?? 1;
 
@@ -334,8 +338,8 @@ public class BlogsController : Controller
             //get posts by found category.
             var categoryPosts = await GetCategoryPostsAsync(category.Id, categoryName, pageNumber, pageSize);
 
-            //Take the appropriate action depending on what posts are found.
-            await CheckForCategoryPosts(blog, categoryPosts, pageNumber, pageSize);
+            //If there are no category posts, assign all blog posts to category posts.
+            if (categoryPosts.Count < 1) categoryPosts = CheckForCategoryPosts(blog, categoryPosts, pageNumber, pageSize);
 
             //store data to be returned to the view.
             ViewData["tags"] = tags;
@@ -388,7 +392,9 @@ public class BlogsController : Controller
         if (BlogExists(id) == false) return BadRequest();
 
         //create instance of blog that will be updated.
-        var blogToUpdate = await _context.Blogs.Include(b => b.Categories.OrderBy(c => c.Name))
+        var blogToUpdate = await _context.Blogs
+            .Include(b => b.Posts)
+            .Include(b => b.Categories.OrderBy(c => c.Name))
             .FirstOrDefaultAsync(b => b.Id == id);
 
         if (ModelState.IsValid)
@@ -417,10 +423,10 @@ public class BlogsController : Controller
                 blogToUpdate = _remoteImageService.UpdateImage(blogToUpdate, blogToUpdate.Image!) as Blog;
 
             //remove stale categories from blog
-            blogToUpdate = RemoveStaleCategories(blogToUpdate);
+            categoryValues = RemoveDuplicateCategories(categoryValues);
 
             //add categories to db.
-            AddCategoriesToDatabase(blogToUpdate.Id, categoryValues);
+            AddCategoriesToDatabase(blogToUpdate!.Id, categoryValues);
 
             //Add entity to the queue for update to the db.
             _context.Update(blogToUpdate);
@@ -505,7 +511,7 @@ public class BlogsController : Controller
         //returns blogs to the Index view.
         return View("Index", blogs);
     }
-
+    
     private void AddCategoriesToDatabase(Guid blogId, List<string> categoryValues)
     {
         foreach (var categoryName in categoryValues)
@@ -521,13 +527,15 @@ public class BlogsController : Controller
         return _context.Blogs.Any(e => e.Id == id);
     }
 
-    private async Task CheckForCategoryPosts(Blog blog, IPagedList<Post> categoryPosts, int pageNumber,
+    private IPagedList<Post> CheckForCategoryPosts(Blog blog, IPagedList<Post> categoryPosts, int pageNumber,
         int pageSize)
     {
         if (categoryPosts.All(p => p.ReadyStatus != ReadyStatus.ProductionReady))
         {
-            await GetNoCategoryBlogPostsAsync(blog, pageNumber, pageSize);
+            return GetNoCategoryBlogPosts(blog, pageNumber, pageSize);
         }
+
+        return new List<Post>().ToPagedList(pageNumber, pageSize);
     }
 
     private bool CheckForModelErrors(Tuple<List<Tuple<string, string, Blog>>> result, List<string> categoryValues)
@@ -561,13 +569,23 @@ public class BlogsController : Controller
 
     private async Task<IPagedList<Blog>> GetAllBlogsAsync(int pageNumber, int pageSize)
     {
+        //get a list of all blogs in the system.
         var blogs = await _context.Blogs
             .Include(b => b.Author)
-            .OrderByDescending(b => b.Created)
-            .Where(b => b.Posts.All(p => p.ReadyStatus == ReadyStatus.ProductionReady))
-            .ToPagedListAsync(pageNumber, pageSize);
+            .Include(b => b.Posts.Where(p => p.ReadyStatus == ReadyStatus.ProductionReady))
+            .OrderByDescending(b => b.Created).ToListAsync();
 
-        return blogs;
+        //create list of blogs that are production ready.
+        var blogOutput = new List<Blog>();
+        foreach (var blog in blogs)
+        {
+            if (blog.Posts.Count > 0)
+            {
+                blogOutput.Add(blog);
+            }
+        }
+
+        return await blogOutput.ToPagedListAsync(pageNumber, pageSize);;
     }
 
     private async Task<Blog> GetBlogByBlogIdAsync(Guid id)
@@ -638,7 +656,6 @@ public class BlogsController : Controller
         //get category based on id
         var category = await _context.Categories
             .FirstOrDefaultAsync(c => c.Id == id);
-
         return category;
     }
 
@@ -685,17 +702,24 @@ public class BlogsController : Controller
         return blogs;
     }
 
-    private async Task GetNoCategoryBlogPostsAsync(Blog blog, int pageNumber, int pageSize)
+    private IPagedList<Post> GetNoCategoryBlogPosts(Blog blog, int pageNumber, int pageSize)
     {
         var message =
             "No articles were found for this category, instead here is a list of posts by the user.";
 
-        ViewData["posts"] = await blog.Posts.OrderByDescending(p => p.Created)
-            .Where(p => p.ReadyStatus == ReadyStatus.ProductionReady)
-            .ToPagedListAsync(pageNumber, pageSize);
+        var output = _context.Posts
+            .Where(p => p.BlogId == blog.Id && p.ReadyStatus == ReadyStatus.ProductionReady)
+            .ToPagedList(pageNumber, pageSize);
 
+        if (output.Count < 1)
+        {
+            message =
+                "No articles were found for this category.";
+        }
+        
         ViewData["action"] = "DisplayArticles";
         TempData["StatusMessage"] = message;
+        return output;
     }
 
     private async Task<List<Post>> GetPostsByBlogIdAsync(Guid id)
@@ -745,11 +769,20 @@ public class BlogsController : Controller
         return blog;
     }
 
-    private Blog RemoveStaleCategories(Blog blog)
+    private List<string> RemoveDuplicateCategories(List<string> categories)
     {
-        if (blog.Categories != null && blog.Categories.Count > 0) _context.RemoveRange(blog.Categories);
+        var pulledCategories = _context.Categories.ToList();
+        var lowerCaseCategories = categories.ConvertAll(d => d.ToLower());
 
-        return blog;
+        foreach (var category in pulledCategories)
+        {
+            if (lowerCaseCategories.Contains(category.Name.ToLower()))
+            {
+                lowerCaseCategories.Remove(category.Name.ToLower());
+            }
+        }
+
+        return lowerCaseCategories;
     }
 
     private IPagedList<Post> SearchPostsToPagedListAsync(List<Post> posts, string term, int pageNumber,
