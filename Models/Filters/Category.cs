@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Portfolio.Models.Content;
 
-namespace Portfolio.Models;
+namespace Portfolio.Models.Filters;
 
 public class Category
 {

@@ -69,18 +69,8 @@ public class LoginModel : PageModel
     public async Task<IActionResult> OnPostAsync(string returnUrl = null)
     {
         returnUrl ??= Url.Content("~/");
-        
-        if (ModelState.IsValid == false &&
-            ModelState.ContainsKey("Recaptcha") &&
-            ModelState["Recaptcha"]!.ValidationState == ModelValidationState.Invalid)
-        {
-            ModelState.AddModelError(string.Empty, "reCaptcha Error.");
-            ReturnUrl = returnUrl;
-            return Page();
-        }
-
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
+        
         if (ModelState.IsValid)
         {
             // This doesn't count login failures towards account lockout
@@ -103,6 +93,12 @@ public class LoginModel : PageModel
 
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             return Page();
+        }
+
+        if (ModelState.ContainsKey("Recaptcha") &&
+            ModelState["Recaptcha"]!.ValidationState == ModelValidationState.Invalid)
+        {
+            ModelState.AddModelError(string.Empty, "reCaptcha Error.");
         }
 
         // If we got this far, something failed, redisplay form

@@ -2,8 +2,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Portfolio.Enums;
+using Portfolio.Models.Filters;
 
-namespace Portfolio.Models;
+namespace Portfolio.Models.Content;
 
 public class Post
 {

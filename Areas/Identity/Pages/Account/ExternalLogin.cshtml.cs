@@ -6,7 +6,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
@@ -16,13 +15,13 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Identity.Web;
 using Portfolio.Extensions;
-using Portfolio.Helpers;
 using Portfolio.Models;
+using Portfolio.Enums;
+using Portfolio.Services;
 using Portfolio.Services.Interfaces;
-using SixLabors.ImageSharp;
 
 namespace Portfolio.Areas.Identity.Pages.Account;
-
+public delegate IExternalLoginService ExternalLoginResolver(ServiceType serviceType);
 [AllowAnonymous]
 [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
 public class ExternalLoginModel : PageModel
@@ -33,6 +32,8 @@ public class ExternalLoginModel : PageModel
     private readonly SignInManager<BlogUser> _signInManager;
     private readonly UserManager<BlogUser> _userManager;
     private readonly IUserStore<BlogUser> _userStore;
+    private readonly IExternalLoginService _Microsoft;
+    private readonly IExternalLoginService _Google;
 
     public ExternalLoginModel(
         SignInManager<BlogUser> signInManager,
@@ -40,13 +41,17 @@ public class ExternalLoginModel : PageModel
         IUserStore<BlogUser> userStore,
         ILogger<ExternalLoginModel> logger,
         IBlogEmailSender emailSender,
-        IRemoteImageService remoteImageService)
+        IRemoteImageService remoteImageService,
+        IEnumerable<IExternalLoginService> externalLoginServices)
     {
+        var loginServiceList = externalLoginServices.ToList();
         _signInManager = signInManager;
         _userManager = userManager;
         _userStore = userStore;
         _emailStore = GetEmailStore();
         _logger = logger;
+        _Microsoft = loginServiceList[(int)ServiceType.MicrosoftExternalLogin];
+        _Google = loginServiceList[(int)ServiceType.GoogleExternalLogin];
         _remoteImageService = remoteImageService;
     }
 
@@ -131,21 +136,7 @@ public class ExternalLoginModel : PageModel
                 try
                 {
                     var token = info.AuthenticationTokens.FirstOrDefault(t => t.Name == "id_token")!.Value;
-                    var singleUserGraphClient = await MicrosoftGraph.GetMicrosoftGraphSingleUserClient(token);
-                    
-                    //use Graph client to get stream of photo.
-                    var stream = await singleUserGraphClient.Me.Photos["120x120"]
-                        .Content
-                        .Request()
-                        .GetAsync();
-
-                    if (stream == null) base64ProfilePicture = string.Empty;
-                    
-                    //create image from stream
-                    var image = Image.Load(stream, out var format);
-
-                    //return base64 image.
-                    base64ProfilePicture = image.ToBase64String(format);
+                    base64ProfilePicture = await _Microsoft.GetBase64ExternalLoginPictureAsync(token);
                 }
                 catch (Exception)
                 {
@@ -155,14 +146,16 @@ public class ExternalLoginModel : PageModel
             }
             else if (info.ProviderDisplayName.ToLower() == "google")
             {
-                var profileImageUrl = info.Principal.FindFirstValue("picture");
-                var client = new HttpClient();
-            
-                var response = await client.GetAsync(profileImageUrl);
-                var stream = await response.Content.ReadAsStreamAsync();
-            
-                var image = Image.Load(stream, out var format);
-                base64ProfilePicture = image.ToBase64String(format);
+                try
+                {
+                    var profileImageUrl = info.Principal.FindFirstValue("picture");
+                    base64ProfilePicture = await _Google.GetBase64ExternalLoginPictureAsync(profileImageUrl);
+                }
+                catch (Exception)
+                {
+                    ErrorMessage = "Error loading external login information.";
+                    return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+                }
             }
             else
             {
@@ -199,16 +192,8 @@ public class ExternalLoginModel : PageModel
 
         if (ModelState.IsValid)
         {
-            var user = CreateUser();
-            
-            //Populate user
-            user.FirstName = Claims.FirstName;
-            user.LastName = Claims.LastName;
-            user.base64ProfileImage = Claims.Base64ProfilePicture;
-            user.UserAcceptedTerms = Claims.UserAcceptedTerms;
-
             var validationError = false;
-            if (user.UserAcceptedTerms == false)
+            if (Claims.UserAcceptedTerms == false)
             {
                 validationError = true;
                 ModelState.AddModelError(string.Empty, "You must accept the terms of our privacy policy to register.");
@@ -219,7 +204,14 @@ public class ExternalLoginModel : PageModel
                 ReturnUrl = returnUrl;
                 return Page();
             }
-
+            
+            var user = CreateUser();
+            //Populate user
+            user.FirstName = Claims.FirstName;
+            user.LastName = Claims.LastName;
+            user.base64ProfileImage = Claims.Base64ProfilePicture;
+            user.UserAcceptedTerms = Claims.UserAcceptedTerms;
+            
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
@@ -236,11 +228,11 @@ public class ExternalLoginModel : PageModel
                             var match = Regex.Match(user.FileName,
                                 @"[{(]?[0-9A-F]{8}[-]?([0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?");
                             user.FileName = match.Success
-                                ? _remoteImageService.UploadPostImage(Claims.ProfilePicture, match.Value)
-                                : _remoteImageService.UploadPostImage(Claims.ProfilePicture);
+                                ? _remoteImageService.UploadContentImage(Claims.ProfilePicture, ContentType.Profile, match.Value)
+                                : _remoteImageService.UploadContentImage(Claims.ProfilePicture, ContentType.Profile);
                         }
 
-                        user.FileName = _remoteImageService.UploadProfileImage(Claims.ProfilePicture);
+                        user.FileName = _remoteImageService.UploadContentImage(Claims.ProfilePicture, ContentType.Profile);
                     }
 
                     result = await _userManager.UpdateAsync(user);

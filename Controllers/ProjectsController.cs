@@ -2,8 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Portfolio.Data;
+using Portfolio.Enums;
 using Portfolio.Extensions;
-using Portfolio.Models;
+using Portfolio.Models.Content;
 using Portfolio.Services.Interfaces;
 
 namespace Portfolio.Controllers;
@@ -51,7 +52,7 @@ public class ProjectsController : Controller
 
             //update image if necessary.
             if (project.Image != null)
-                project.FileName = _remoteImageService.UploadProjectImage(project.Image);
+                project.ContentUrl = _remoteImageService.UploadContentImage(project.Image, ContentType.Project);
             project.Created = DateTime.Now.ToUniversalTime();
 
             //Add entity to the queue for creation to the db.
@@ -154,14 +155,14 @@ public class ProjectsController : Controller
                 //do nothing...
             }
             
-            else if (newProject.Image != null && string.IsNullOrEmpty(newProject.FileName) == false)
+            else if (newProject.Image != null && string.IsNullOrEmpty(newProject.ContentUrl) == false)
             {
-                newProject = (_remoteImageService.UpdateImage(newProject, newProject.Image) as Project)!;
+                newProject = (_remoteImageService.UpdateImage(newProject, ContentType.Project, newProject.Image) as Project)!;
             }
 
             else
             {
-                newProject.FileName = _remoteImageService.UploadProjectImage(newProject.Image!);
+                newProject.ContentUrl = _remoteImageService.UploadContentImage(newProject.Image!, ContentType.Project);
             }
 
             //add entity to be updated in the db.
@@ -215,7 +216,7 @@ public class ProjectsController : Controller
 
     private void DeleteProjectImage(Project project)
     {
-        if (!string.IsNullOrEmpty(project.FileName))
+        if (!string.IsNullOrEmpty(project.ContentUrl))
         {
             var configuration = GetConfiguration();
             //Set upload directory
@@ -223,7 +224,7 @@ public class ProjectsController : Controller
                 .FirstOrDefault(d => d.Key == "ProjectUploadDirectory")!.Value;
 
             //delete remote picture
-            _remoteImageService.DeleteImage(project, uploadDirectory);
+            _remoteImageService.CheckForImageToDelete(project, uploadDirectory);
         }
     }
 

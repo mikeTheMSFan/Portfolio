@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Portfolio.Models.Filters;
 
-namespace Portfolio.Models;
+namespace Portfolio.Models.Content;
 
 public class Blog
 {

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Portfolio.Enums;
 using Portfolio.Extensions;
 using Portfolio.Models;
 using Portfolio.Services.Interfaces;
@@ -75,23 +76,6 @@ public class RegisterModel : PageModel
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         if (ModelState.IsValid)
         {
-            if (ModelState.IsValid == false &&
-                ModelState.ContainsKey("Recaptcha") &&
-                ModelState["Recaptcha"]!.ValidationState == ModelValidationState.Invalid)
-            {
-                ModelState.AddModelError(string.Empty, "reCaptcha Error.");
-                ReturnUrl = returnUrl;
-                return Page();
-            }
-            
-            var user = CreateUser();
-
-            await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
-            await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-            user.FirstName = Input.FirstName;
-            user.LastName = Input.LastName;
-            user.UserAcceptedTerms = Input.UserAcceptedTerms;
-            
             var validationError = false;
             if (Input.UserAcceptedTerms == false)
             {
@@ -104,7 +88,15 @@ public class RegisterModel : PageModel
                 ReturnUrl = returnUrl;
                 return Page();
             }
+            
+            var user = CreateUser();
 
+            await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+            await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+            user.FirstName = Input.FirstName;
+            user.LastName = Input.LastName;
+            user.UserAcceptedTerms = Input.UserAcceptedTerms;
+            
             if (Input.Image == null)
             {
                 //Nothing to process
@@ -113,7 +105,7 @@ public class RegisterModel : PageModel
             else if (Input.Image != null && Input.Image.IsImage()
                                          && Input.Image.IsDecent())
             {
-                var userFileName = _remoteImageService.UploadProfileImage(Input.Image);
+                var userFileName = _remoteImageService.UploadContentImage(Input.Image, ContentType.Profile);
                 user.FileName = userFileName;
             }
 
@@ -147,7 +139,12 @@ public class RegisterModel : PageModel
 
             foreach (var error in result.Errors) ModelState.AddModelError(string.Empty, error.Description);
         }
-
+        
+        if (ModelState.ContainsKey("Recaptcha") &&
+            ModelState["Recaptcha"]!.ValidationState == ModelValidationState.Invalid)
+        {
+            ModelState.AddModelError(string.Empty, "reCaptcha Error.");
+        }
         // If we got this far, something failed, redisplay form
         return Page();
     }

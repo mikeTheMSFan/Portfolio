@@ -2,6 +2,7 @@
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using Portfolio.Models.Settings;
 using Portfolio.Services.Interfaces;
 using Portfolio.ViewModels;
 
@@ -9,11 +10,11 @@ namespace Portfolio.Services;
 
 public class EmailService : IBlogEmailSender
 {
-    private readonly MailSettingsViewModel _settingsViewModel;
+    private readonly AppSettings _appSettings;
 
-    public EmailService(IOptions<MailSettingsViewModel> settingsViewModel)
+    public EmailService(IOptions<AppSettings> appSettings)
     {
-        _settingsViewModel = settingsViewModel.Value;
+        _appSettings = appSettings.Value;
     }
 
     public async Task SendEmailAsync(string emailTo, string subject, string htmlMessage)
@@ -21,7 +22,7 @@ public class EmailService : IBlogEmailSender
         //Write email
         var email = new MimeMessage
         {
-            Sender = MailboxAddress.Parse(_settingsViewModel.Mail),
+            Sender = MailboxAddress.Parse(_appSettings.MailSettings.Mail),
             To = { MailboxAddress.Parse(emailTo) },
             From = { MailboxAddress.Parse("noreply@mikemrobinsondev.com") },
             Subject = subject
@@ -38,8 +39,8 @@ public class EmailService : IBlogEmailSender
 
         //Send email
         using var smtp = new SmtpClient();
-        await smtp.ConnectAsync(_settingsViewModel.Host, _settingsViewModel.Port, SecureSocketOptions.StartTls);
-        await smtp.AuthenticateAsync(_settingsViewModel.Mail, _settingsViewModel.Password);
+        await smtp.ConnectAsync(_appSettings.MailSettings.Host, _appSettings.MailSettings.Port, SecureSocketOptions.StartTls);
+        await smtp.AuthenticateAsync(_appSettings.MailSettings.Mail, _appSettings.MailSettings.Password);
         await smtp.SendAsync(email);
         await smtp.DisconnectAsync(true);
     }
@@ -49,7 +50,7 @@ public class EmailService : IBlogEmailSender
         //Write email
         var email = new MimeMessage
         {
-            Sender = MailboxAddress.Parse(_settingsViewModel.Mail),
+            Sender = MailboxAddress.Parse(_appSettings.MailSettings.Mail),
             To = { MailboxAddress.Parse("bigmike2238@yahoo.com") },
             From = { MailboxAddress.Parse("noreply@mikemrobinsondev.com") },
             Subject = subject
@@ -66,8 +67,8 @@ public class EmailService : IBlogEmailSender
 
         //Send email
         var smtp = new SmtpClient();
-        await smtp.ConnectAsync(_settingsViewModel.Host, _settingsViewModel.Port, SecureSocketOptions.StartTls);
-        await smtp.AuthenticateAsync(_settingsViewModel.Mail, _settingsViewModel.Password);
+        await smtp.ConnectAsync(_appSettings.MailSettings.Host, _appSettings.MailSettings.Port, SecureSocketOptions.StartTls);
+        await smtp.AuthenticateAsync(_appSettings.MailSettings.Mail, _appSettings.MailSettings.Password);
         await smtp.SendAsync(email);
         await smtp.DisconnectAsync(true);
     }

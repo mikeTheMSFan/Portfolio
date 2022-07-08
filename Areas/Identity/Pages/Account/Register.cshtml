@@ -57,10 +57,10 @@
                     <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
                 </div>
                 <div class="form-floating">
+                    <span asp-validation-for="Input.UserAcceptedTerms" class="text-danger"></span>
                     <input asp-for="Input.UserAcceptedTerms" aria-required="true"/>
                     <label>I accept the terms of this site's <a asp-action="Privacy" asp-controller="Home" target="_blank">Privacy Policy</a></label>
                     <br/>
-                    <span asp-validation-for="Input.UserAcceptedTerms" class="text-danger"></span>
                 </div>
                 <button id="registerSubmit" type="submit" class="w-100 btn btn-lg default-btn">Register</button>
                 <div class="pt-3">

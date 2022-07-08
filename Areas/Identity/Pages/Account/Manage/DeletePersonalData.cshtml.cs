@@ -8,8 +8,10 @@ using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Options;
 using Portfolio.Extensions;
 using Portfolio.Models;
+using Portfolio.Models.Settings;
 using Portfolio.Services.Interfaces;
 
 namespace Portfolio.Areas.Identity.Pages.Account.Manage;
@@ -20,18 +22,20 @@ public class DeletePersonalDataModel : PageModel
     private readonly IRemoteImageService _remoteImageService;
     private readonly SignInManager<BlogUser> _signInManager;
     private readonly UserManager<BlogUser> _userManager;
+    private readonly AppSettings _appSettings;
 
     public DeletePersonalDataModel(
         UserManager<BlogUser> userManager,
         SignInManager<BlogUser> signInManager,
         ILogger<DeletePersonalDataModel> logger,
-        IConfiguration configuration,
-        IRemoteImageService remoteImageService)
+        IRemoteImageService remoteImageService,
+        IOptions<AppSettings> appSettings)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _logger = logger;
         _remoteImageService = remoteImageService;
+        _appSettings = appSettings.Value;
     }
 
     /// <summary>
@@ -73,9 +77,7 @@ public class DeletePersonalDataModel : PageModel
         {
             var pattern = @"([a-z0-9]{8}[-][a-z0-9]{4}[-][a-z0-9]{4}[-][a-z0-9]{4}[-][a-z0-9]{12})";
             var match = Regex.Match(user.FileName, pattern);
-            var configuration = GetConfiguration();
-            var uploadDirectory = configuration.GetSection("SftpSettings").GetChildren()
-                .FirstOrDefault(d => d.Key == "ProfileUploadDirectory")!.Value;
+            var uploadDirectory = _appSettings.SftpSettings.ProfileUploadDirectory;
 
             if (match.Success)
             {
@@ -96,18 +98,7 @@ public class DeletePersonalDataModel : PageModel
 
         return Redirect("~/");
     }
-
-    private IConfiguration GetConfiguration()
-    {
-        var configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .AddEnvironmentVariables()
-            .Build()
-            .Decrypt("CipherKey", "CipherText:");
-
-        return configuration;
-    }
-
+    
     /// <summary>
     ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.

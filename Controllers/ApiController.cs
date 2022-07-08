@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Portfolio.Data;
 using Portfolio.Enums;
 using Portfolio.Models;
+using Portfolio.Models.Content;
 
 namespace Portfolio.Controllers;
 

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Portfolio.Enums;
 
-namespace Portfolio.Models;
+namespace Portfolio.Models.Content;
 
 public class Comment
 {

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Portfolio.Data;
+using Portfolio.Enums;
 using Portfolio.Extensions;
 using Portfolio.Models;
 using Portfolio.Services.Interfaces;
@@ -133,21 +134,21 @@ public class IndexModel : PageModel
                     var fileExtension =
                         user.FileName.Substring(user.FileName.Length >= 4 ? user.FileName.Length - 4 : 0);
                     var fullFileName = $"{match.Value}{fileExtension}";
-                    var fileName = _remoteImageService.UploadPostImage(Input.Image, fullFileName);
+                    var fileName = _remoteImageService.UploadContentImage(Input.Image, ContentType.Post, fullFileName);
                     user.FileName = fileName;
                     _context.Update(user);
                     await _context.SaveChangesAsync();
                 }
                 else
                 {
-                    var fileName = _remoteImageService.UploadProfileImage(Input.Image);
+                    var fileName = _remoteImageService.UploadContentImage(Input.Image, ContentType.Post);
                     user.FileName = fileName;
                     _context.Update(user);
                     await _context.SaveChangesAsync();
                 }
             }
 
-            var userFileName = _remoteImageService.UploadProfileImage(Input.Image);
+            var userFileName = _remoteImageService.UploadContentImage(Input.Image, ContentType.Post);
             user.FileName = userFileName;
             _context.Update(user);
             await _context.SaveChangesAsync();

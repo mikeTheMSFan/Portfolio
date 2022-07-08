@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace Portfolio.Models;
+namespace Portfolio.Models.Content;
 
 public class Project
 {
@@ -29,7 +29,7 @@ public class Project
 
     [Required] public string ProjectUrl { get; set; } = default!;
 
-    [JsonIgnore] public string? FileName { get; set; }
+    [JsonIgnore] public string? ContentUrl { get; set; }
 
     [JsonIgnore] [NotMapped] public IFormFile? Image { get; set; }
 

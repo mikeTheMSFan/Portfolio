@@ -1,14 +1,12 @@
 using System.Runtime.InteropServices;
+using Portfolio.Enums;
 
 namespace Portfolio.Services.Interfaces;
 
 public interface IRemoteImageService
 {
-    public string UploadProfileImage(IFormFile image, [Optional] string fileName);
-    public string UploadProjectImage(IFormFile image, [Optional] string fileName);
-    public string UploadBlogImage(IFormFile image, [Optional] string fileName);
-    public string UploadPostImage(IFormFile image, [Optional] string fileName);
+    public string UploadContentImage(IFormFile image, ContentType contentType, [Optional] string fileName);
     public void DeleteRemoteFile(string directory, string fileName);
-    public object UpdateImage(object modelToUpdate, IFormFile image);
-    public void DeleteImage(object modelToDelete, string uploadDirectory);
+    public object UpdateImage(object modelToUpdate, ContentType contentType, IFormFile image);
+    public void CheckForImageToDelete(object modelToDelete, string uploadDirectory);
 }

@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Portfolio.Data;
 using Portfolio.Extensions;
 using Portfolio.Models;
+using Portfolio.Models.Content;
+using Portfolio.Models.Filters;
 using Portfolio.Services.Interfaces;
 using Portfolio.ViewModels;
 

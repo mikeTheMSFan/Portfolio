@@ -1,4 +1,5 @@
 ﻿using Portfolio.Models;
+using Portfolio.Models.Content;
 
 namespace Portfolio.ViewModels;
 

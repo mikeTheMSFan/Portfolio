@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Portfolio.Models;
+using Portfolio.Models.Content;
+using Portfolio.Models.Filters;
 
 namespace Portfolio.Data;
 

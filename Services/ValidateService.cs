@@ -3,6 +3,7 @@ using Portfolio.Data;
 using Portfolio.Extensions;
 using Portfolio.Helpers;
 using Portfolio.Models;
+using Portfolio.Models.Content;
 using Portfolio.Services.Interfaces;
 
 namespace Portfolio.Services;

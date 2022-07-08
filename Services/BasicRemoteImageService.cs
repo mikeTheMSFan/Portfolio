@@ -1,9 +1,11 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using Portfolio.Extensions;
-using Portfolio.Models;
+using Microsoft.Extensions.Options;
+using Portfolio.Models.Content;
+using Portfolio.Models.Settings;
 using Portfolio.Services.Interfaces;
+using Portfolio.Enums;
 using Renci.SshNet;
 using SixLabors.ImageSharp;
 using ConnectionInfo = Renci.SshNet.ConnectionInfo;
@@ -12,115 +14,37 @@ namespace Portfolio.Services;
 
 public class BasicRemoteImageService : IRemoteImageService
 {
-    public string UploadProfileImage(IFormFile image, [Optional] string? fileName)
+    private readonly AppSettings _appSettings;
+
+    public BasicRemoteImageService(IOptions<AppSettings> appSettings)
     {
-        //set configuration
-        var configuration = GetConfiguration();
-        var uploadDirectory = configuration.GetSection("SftpSettings").GetChildren()
-            .FirstOrDefault(d => d.Key == "ProfileUploadDirectory")!.Value;
-        var storageDirectory = configuration.GetSection("SftpSettings").GetChildren()
-            .FirstOrDefault(d => d.Key == "StorageUrl")!.Value;
+        _appSettings = appSettings.Value;
+    }
+
+    public string UploadContentImage(IFormFile image, ContentType contentType, [Optional] string? fileName)
+    {
+        var paths = GetUploadDirectory(contentType);
+        var storageUrl = _appSettings.SftpSettings.StorageUrl;
 
         //upload picture based on the state of the 'fileName' parameter.
         string output;
         if (fileName != null && !fileName.Contains("Could not complete request."))
         {
-            var result = UploadPicture(uploadDirectory, image, fileName);
-            output = $"{storageDirectory}profilePictures/{result}";
+            var result = UploadPicture(paths.uploadDirectory, image, fileName);
+            output = $"{storageUrl}{paths.uploadFolder}{result}";
         }
         else
         {
-            var result = UploadPicture(uploadDirectory, image);
-            output = $"{storageDirectory}profilePictures/{result}";
+            var result = UploadPicture(paths.uploadDirectory, image);
+            output = $"{storageUrl}{paths.uploadFolder}{result}";
         }
 
         //return the result.
         return output;
     }
 
-    public string UploadProjectImage(IFormFile image, [Optional] string? fileName)
+    public object UpdateImage(object modelToUpdate, ContentType contentType, IFormFile image)
     {
-        //set configuration
-        var configuration = GetConfiguration();
-        var uploadDirectory = configuration.GetSection("SftpSettings").GetChildren()
-            .FirstOrDefault(d => d.Key == "ProjectUploadDirectory")!.Value;
-        var storageDirectory = configuration.GetSection("SftpSettings").GetChildren()
-            .FirstOrDefault(d => d.Key == "StorageUrl")!.Value;
-
-        //upload picture based on the state of the 'fileName' parameter.
-        string output;
-        if (fileName != null)
-        {
-            var result = UploadPicture(uploadDirectory, image, fileName);
-            output = $"{storageDirectory}projectPictures/{result}";
-        }
-        else
-        {
-            var result = UploadPicture(uploadDirectory, image);
-            output = $"{storageDirectory}projectPictures/{result}";
-        }
-
-        //return the result.
-        return output;
-    }
-
-    public string UploadBlogImage(IFormFile image, [Optional] string? fileName)
-    {
-        //set configuration
-        var configuration = GetConfiguration();
-        var uploadDirectory = configuration.GetSection("SftpSettings").GetChildren()
-            .FirstOrDefault(d => d.Key == "BlogUploadDirectory")!.Value;
-        var storageDirectory = configuration.GetSection("SftpSettings").GetChildren()
-            .FirstOrDefault(d => d.Key == "StorageUrl")!.Value;
-
-        //upload picture based on the state of the 'fileName' parameter.
-        string output;
-        if (fileName != null)
-        {
-            var result = UploadPicture(uploadDirectory, image, fileName);
-            output = $"{storageDirectory}blogPictures/{result}";
-        }
-        else
-        {
-            var result = UploadPicture(uploadDirectory, image);
-            output = $"{storageDirectory}blogPictures/{result}";
-        }
-
-        //return the result.
-        return output;
-    }
-
-    public string UploadPostImage(IFormFile image, [Optional] string? fileName)
-    {
-        //set configuration
-        var configuration = GetConfiguration();
-        var uploadDirectory = configuration.GetSection("SftpSettings").GetChildren()
-            .FirstOrDefault(d => d.Key == "PostUploadDirectory")!.Value;
-        var storageDirectory = configuration.GetSection("SftpSettings").GetChildren()
-            .FirstOrDefault(d => d.Key == "StorageUrl")!.Value;
-
-        //upload picture based on the state of the 'fileName' parameter.
-        string output;
-        if (fileName != null)
-        {
-            var result = UploadPicture(uploadDirectory, image, fileName);
-            output = $"{storageDirectory}postPictures/{result}";
-        }
-        else
-        {
-            var result = UploadPicture(uploadDirectory, image);
-            output = $"{storageDirectory}postPictures/{result}";
-        }
-
-        //return the result.
-        return output;
-    }
-
-    public object UpdateImage(object modelToUpdate, IFormFile image)
-    {
-        //get model type
-        var type = modelToUpdate.GetType();
-
         //if there is a file name, complete the appropriate process.
         if (modelToUpdate.GetType().GetProperty("FileName")!.GetValue(modelToUpdate) as string != null)
         {
@@ -135,45 +59,39 @@ public class BasicRemoteImageService : IRemoteImageService
             if (match.Success)
             {
                 //get the file extension of file
-                var fileExtension =
-                    (modelToUpdate.GetType().GetProperty("FileName")!.GetValue(modelToUpdate) as string)!.Substring(
-                        (modelToUpdate.GetType().GetProperty("FileName")!.GetValue(modelToUpdate) as string)!
-                        .Length >= 4
-                            ? (modelToUpdate.GetType().GetProperty("FileName")!.GetValue(modelToUpdate) as string)!
-                            .Length - 4
-                            : 0);
+                var fileExtension = GetFileExtensionFromObject(modelToUpdate);
 
                 //combine the found GUID with the file extension
                 var fullFileName = $"{match.Value}{fileExtension}";
 
                 //return URL from image upload
-                var fileName = UploadImage(type, image, fullFileName);
+                var contentUrl = GetContentUrl(image, contentType, fullFileName);
 
                 //get property metadata using reflection and set it.
                 var prop = modelToUpdate.GetType()
                     .GetProperty("FileName", BindingFlags.Public | BindingFlags.Instance);
 
                 //if the property is not null and is writable, use 'fileName' variable to set the property.
-                if (null != prop && prop.CanWrite) prop.SetValue(modelToUpdate, fileName, null);
+                if (null != prop && prop.CanWrite) prop.SetValue(modelToUpdate, contentUrl, null);
             }
             else
             {
                 //upload image without file name.
-                var fileName = UploadImage(type, image);
+                var contentUrl = GetContentUrl(image, contentType);
 
                 //get property metadata using reflection and set it.
                 var prop = modelToUpdate.GetType()
                     .GetProperty("FileName", BindingFlags.Public | BindingFlags.Instance);
 
                 //if the property is not null and is writable, use 'fileName' variable to set the property.
-                if (null != prop && prop.CanWrite) prop.SetValue(modelToUpdate, fileName, null);
+                if (null != prop && prop.CanWrite) prop.SetValue(modelToUpdate, contentUrl, null);
             }
         }
 
         return modelToUpdate;
     }
 
-    public void DeleteImage(object modelToDelete, string uploadDirectory)
+    public void CheckForImageToDelete(object modelToDelete, string uploadDirectory)
     {
         //patter used to extract GUID
         var pattern = @"([a-z0-9]{8}[-][a-z0-9]{4}[-][a-z0-9]{4}[-][a-z0-9]{4}[-][a-z0-9]{12})";
@@ -182,23 +100,23 @@ public class BasicRemoteImageService : IRemoteImageService
         var match = Regex.Match((modelToDelete.GetType().GetProperty("FileName")!.GetValue(modelToDelete) as string)!,
             pattern);
 
-        //if there is a match preform the appropriate actions
         if (match.Success)
         {
             //get file extension
-            var fileExtension =
-                (modelToDelete.GetType().GetProperty("FileName")!.GetValue(modelToDelete) as string)!.Substring(
-                    (modelToDelete.GetType().GetProperty("FileName")!.GetValue(modelToDelete) as string)!.Length >= 4
-                        ? (modelToDelete.GetType().GetProperty("FileName")!.GetValue(modelToDelete) as string)!.Length -
-                          4
-                        : 0);
-
-            //set full file name.
-            var fileName = $"{match.Value}{fileExtension}";
+            var fileExtension = GetFileExtensionFromObject(modelToDelete);
+            
+            //Prepare image for deletion
+            var fileName = PrepareFileForDeletion(match, fileExtension);
 
             //Delete blog picture
             DeleteRemoteFile(uploadDirectory, fileName);
         }
+    }
+
+    private string PrepareFileForDeletion(Match match, string fileExtension)
+    {
+        //set full file name.
+        return $"{match.Value}{fileExtension}";
     }
 
     public void DeleteRemoteFile(string directory, string fileName)
@@ -222,44 +140,62 @@ public class BasicRemoteImageService : IRemoteImageService
         client.Dispose();
     }
 
-    private string UploadImage(Type type, IFormFile image, [Optional] string? fullFileName)
+    private string GetFileExtensionFromObject(Object model)
     {
-        //create 'fileName' variable.
-        var fileName = string.Empty;
+        return (model.GetType().GetProperty("FileName")!.GetValue(model) as string)!.Substring(
+            (model.GetType().GetProperty("FileName")!.GetValue(model) as string)!
+            .Length >= 4
+                ? (model.GetType().GetProperty("FileName")!.GetValue(model) as string)!
+                .Length - 4
+                : 0);
+    }
+
+    private (string uploadDirectory, string uploadFolder) GetUploadDirectory(ContentType contentType)
+    {
+        if (contentType == ContentType.Blog)
+        {
+            return (_appSettings.SftpSettings.BlogUploadDirectory, "blogPictures/");
+        }
+
+        else if (contentType == ContentType.Post)
+        {
+            return (_appSettings.SftpSettings.PostUploadDirectory, "postPictures/");
+        }
+
+        else if (contentType == ContentType.Profile)
+        {
+            return (_appSettings.SftpSettings.ProfileUploadDirectory, "profilePictures/");
+        }
+
+        else if (contentType == ContentType.Project)
+        {
+            return (_appSettings.SftpSettings.ProjectUploadDirectory, "projectPictures/");
+        }
+
+        return (string.Empty, String.Empty);
+    }
+
+    private string GetContentUrl(IFormFile image, ContentType contentType, [Optional] string? fullPath)
+    {
+        //create 'contentURL' variable.
+        var contentUrl = string.Empty;
 
         //upload image based on type
-        if (type == typeof(Blog) && fullFileName != null)
-            fileName = UploadBlogImage(image, fullFileName);
+        if (fullPath != null)
+            contentUrl = UploadContentImage(image, contentType, fullPath);
 
-        else if (type == typeof(Blog) && fullFileName == null)
-            fileName = UploadBlogImage(image);
-
-        else if (type == typeof(Post) && fullFileName != null)
-            fileName = UploadPostImage(image, fullFileName);
-
-        else if (type == typeof(Post) && fullFileName == null)
-            fileName = UploadPostImage(image);
-
-        else if (type == typeof(Project) && fullFileName != null)
-            fileName = UploadProjectImage(image, fullFileName);
-
-        else if (type == typeof(Project) && fullFileName == null)
-            fileName = UploadProjectImage(image);
+        else if (fullPath == null)
+            contentUrl = UploadContentImage(image, contentType);
 
         //return url. 
-        return fileName;
+        return contentUrl;
     }
 
     private SftpClient InitializeSftpClient()
     {
-        //Syntax to login to file share...
-        var configuration = GetConfiguration();
-        var sshConfig = configuration.GetSection("SftpSettings").GetChildren();
-
-        var configurationSections = sshConfig as IConfigurationSection[] ?? sshConfig.ToArray();
-        var passPhrase = configurationSections.FirstOrDefault(c => c.Key == "PassPhrase")!.Value;
-        var userName = configurationSections.FirstOrDefault(c => c.Key == "UserName")!.Value;
-        var host = configurationSections.FirstOrDefault(c => c.Key == "Host")!.Value;
+        var passPhrase = _appSettings.SftpSettings.PassPhrase;
+        var userName = _appSettings.SftpSettings.UserName;
+        var host = _appSettings.SftpSettings.Host;
 
         var connectionInfo = new ConnectionInfo(host,
             userName,
@@ -304,16 +240,5 @@ public class BasicRemoteImageService : IRemoteImageService
 
             return "Could not complete request.";
         }
-    }
-
-    private IConfigurationRoot GetConfiguration()
-    {
-        var configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .AddEnvironmentVariables()
-            .Build()
-            .Decrypt("CipherKey", "CipherText:");
-
-        return configuration;
     }
 }

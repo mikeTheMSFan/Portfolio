@@ -6,7 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Portfolio.Data;
 using Portfolio.Enums;
 using Portfolio.Extensions;
+using Portfolio.Models.Content;
 using Portfolio.Models;
+using Portfolio.Models.Filters;
 using Portfolio.Services.Interfaces;
 using X.PagedList;
 
@@ -420,7 +422,7 @@ public class BlogsController : Controller
 
             //update image if necessary.
             if (blogToUpdate.Image != null)
-                blogToUpdate = _remoteImageService.UpdateImage(blogToUpdate, blogToUpdate.Image!) as Blog;
+                blogToUpdate = _remoteImageService.UpdateImage(blogToUpdate, ContentType.Blog, blogToUpdate.Image!) as Blog;
 
             //remove stale categories from blog
             categoryValues = RemoveDuplicateCategories(categoryValues);
@@ -563,7 +565,7 @@ public class BlogsController : Controller
                 .FirstOrDefault(d => d.Key == "BlogUploadDirectory")!.Value;
 
             //delete remote picture
-            _remoteImageService.DeleteImage(blog, uploadDirectory);
+            _remoteImageService.CheckForImageToDelete(blog, uploadDirectory);
         }
     }
 
@@ -763,7 +765,7 @@ public class BlogsController : Controller
         //If there is a blog image, upload it.
         else if (blog.Image != null)
         {
-            blog.FileName = _remoteImageService.UploadBlogImage(blog.Image);
+            blog.FileName = _remoteImageService.UploadContentImage(blog.Image, ContentType.Blog);
         }
 
         return blog;

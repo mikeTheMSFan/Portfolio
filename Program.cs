@@ -8,20 +8,26 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.OpenApi.Models;
+using Portfolio.Areas.Identity.Pages.Account;
 using Portfolio.Data;
+using Portfolio.Enums;
 using Portfolio.Extensions;
 using Portfolio.Models;
+using Portfolio.Models.Settings;
 using Portfolio.Services;
 using Portfolio.Services.Interfaces;
 using Portfolio.ViewModels;
 using WebApplication = Microsoft.AspNetCore.Builder.WebApplication;
 
 var builder = WebApplication.CreateBuilder(args);
+
 var configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .AddEnvironmentVariables()
     .Build()
     .Decrypt("CipherKey", "CipherText:");
+
+builder.Services.Configure<AppSettings>(configuration.GetSection("AppSettings"));
 
 // Add services to the container.
 var connectionString = configuration.GetConnectionString("Production");
@@ -32,25 +38,24 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 //Add built-in identity
 builder.Services.AddIdentity<BlogUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultUI()
     .AddTokenProvider<DataProtectorTokenProvider<BlogUser>>(TokenOptions.DefaultProvider)
     .AddDefaultTokenProviders();
 
 //Add Microsoft Authentication (External login)
-string[] initialScopes = configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' ')!;
+string[] initialScopes = configuration.GetValue<string>("AppSettings:DownstreamApi:Scopes")?.Split(' ')!;
 builder.Services.AddAuthentication()
-    .AddMicrosoftIdentityWebApp(configuration.GetSection("AzureAd"))
+    .AddMicrosoftIdentityWebApp(configuration.GetSection("AppSettings").GetSection("AzureAd"))
     .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
-    .AddMicrosoftGraph(configuration.GetSection("DownstreamApi"))
+    .AddMicrosoftGraph(configuration.GetSection("AppSettings").GetSection("DownstreamApi"))
     .AddInMemoryTokenCaches();
 
 builder.Services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme, options =>
 {
     options.Authority = "https://login.microsoftonline.com/common/v2.0/";
-    options.ClientId = configuration.GetSection("AzureAd").GetSection("ClientId").Value;
+    options.ClientId = configuration.GetSection("AppSettings").GetSection("AzureAd").GetSection("ClientId").Value;
     options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
-    options.CallbackPath = configuration.GetSection("AzureAd").GetSection("CallBackPath").Value;
+    options.CallbackPath = configuration.GetSection("AppSettings").GetSection("AzureAd").GetSection("CallBackPath").Value;
     options.RequireHttpsMetadata = false;
     options.SaveTokens = true;
     options.GetClaimsFromUserInfoEndpoint = true;
@@ -58,7 +63,7 @@ builder.Services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.Authentic
     options.Scope.Add("offline_access");
     options.Scope.Add("profile");
     options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "sub");
-    options.ClientSecret = configuration.GetSection("AzureAd").GetSection("ClientSecret").Value;
+    options.ClientSecret = configuration.GetSection("AppSettings").GetSection("AzureAd").GetSection("ClientSecret").Value;
     options.SignInScheme = IdentityConstants.ExternalScheme;
 });
 
@@ -74,16 +79,16 @@ builder.Services.PostConfigure<AuthenticationOptions>(options =>
     }
 });
 
-//Add Google Authentication
-    builder.Services.AddAuthentication()
-    .AddGoogle(options =>
-    {
-        options.ClientId = configuration.GetSection("GoogleAccount").GetSection("client_id").Value;
-        options.ClientSecret = configuration.GetSection("GoogleAccount").GetSection("client_secret").Value;
-        options.ClaimActions.MapJsonKey("GivenName", "given_name");
-        options.ClaimActions.MapJsonKey("Surname", "family_name");
-        options.ClaimActions.MapJsonKey("picture", "picture");
-    });
+//Add Google Authentication (Disabled till verified)
+    // builder.Services.AddAuthentication()
+    // .AddGoogle(options =>
+    // {
+    //     options.ClientId = configuration.GetSection("GoogleAccount").GetSection("client_id").Value;
+    //     options.ClientSecret = configuration.GetSection("GoogleAccount").GetSection("client_secret").Value;
+    //     options.ClaimActions.MapJsonKey("GivenName", "given_name");
+    //     options.ClaimActions.MapJsonKey("Surname", "family_name");
+    //     options.ClaimActions.MapJsonKey("picture", "picture");
+    // });
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages()
@@ -114,6 +119,23 @@ builder.Services.AddScoped<IValidate, ValidateService>();
 
 //Register Avatar Service
 builder.Services.AddScoped<INoAvatarService, BasicAvatarService>();
+
+//Register External Login Services
+builder.Services.AddScoped<IExternalLoginService, MicrosoftExternalLogin>();
+builder.Services.AddScoped<IExternalLoginService, GoogleExternalLogin>();
+
+// builder.Services.AddScoped<ExternalLoginResolver>(serviceProvider => serviceTypeName =>
+// {
+//     switch (serviceTypeName)
+//     {
+//         case ServiceType.MicrosoftExternalLogin:
+//             return serviceProvider.GetService<MicrosoftExternalLogin>();
+//         case ServiceType.GoogleExternalLogin:
+//             return serviceProvider.GetService<GoogleExternalLogin>();
+//         default:
+//             return null;
+//     }
+// });
 
 //Register Swagger Implementation
 builder.Services.AddSwaggerGen(options =>

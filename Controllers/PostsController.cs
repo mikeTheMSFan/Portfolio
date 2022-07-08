@@ -8,6 +8,8 @@ using Portfolio.Data;
 using Portfolio.Enums;
 using Portfolio.Extensions;
 using Portfolio.Models;
+using Portfolio.Models.Content;
+using Portfolio.Models.Filters;
 using Portfolio.Services.Interfaces;
 using Portfolio.ViewModels;
 using X.PagedList;
@@ -294,7 +296,7 @@ public class PostsController : Controller
             RemoveStaleTags(newPost);
 
             //update image if necessary.
-            if (newPost.Image != null) newPost = _remoteImageService.UpdateImage(newPost, newPost.Image!) as Post;
+            if (newPost.Image != null) newPost = _remoteImageService.UpdateImage(newPost, ContentType.Post, newPost.Image!) as Post;
 
             //add tags to db.
             AddTagsToDatabase(newPost, tagValues);
@@ -423,7 +425,7 @@ public class PostsController : Controller
                 .FirstOrDefault(d => d.Key == "PostUploadDirectory")!.Value;
 
             //delete remote picture
-            _remoteImageService.DeleteImage(post, uploadDirectory);
+            _remoteImageService.CheckForImageToDelete(post, uploadDirectory);
         }
     }
 
@@ -489,8 +491,7 @@ public class PostsController : Controller
 
     private Post ProcessPostImage(Post post)
     {
-        if (post.Image != null) post.FileName = _remoteImageService.UploadPostImage(post.Image);
-
+        if (post.Image != null) post.FileName = _remoteImageService.UploadContentImage(post.Image, ContentType.Post);
         return post;
     }
 
